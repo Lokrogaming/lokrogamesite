@@ -1,0 +1,35 @@
+{
+  "dailyCredits": 100,
+  "refillTime": "12:00",
+  "timezone": "Europe/Berlin",
+  "gameCosts": {
+    "snake": 5,
+    "tic-tac-toe": 3,
+    "memory": 5,
+    "2048": 5,
+    "breakout": 5,
+    "minesweeper": 5,
+    "whack-a-mole": 5,
+    "simon-says": 5,
+    "pong": 5,
+    "flappy-bird": 5,
+    "tetris": 10,
+    "blockblast": 10,
+    "space-invaders": 8,
+    "pac-man": 8,
+    "solitaire": 5,
+    "sudoku": 5,
+    "asteroids": 8,
+    "blackjack": 10,
+    "match-3": 5,
+    "idle-clicker": 3,
+    "word-search": 5,
+    "ai-mood": 15
+  },
+  "challengeRewards": {
+    "easy": 15,
+    "medium": 25,
+    "hard": 40
+  },
+  "maxDailyChallenges": 5
+}
