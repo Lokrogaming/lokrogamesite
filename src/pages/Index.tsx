@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
-import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload } from "lucide-react";
+import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload, Shield } from "lucide-react";
 
 const games = {
   arcade: [
@@ -29,7 +29,7 @@ const games = {
 };
 
 const Index = () => {
-  const { user, profile, signOut, isLoading } = useAuth();
+  const { user, profile, signOut, isLoading, isStaff } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,6 +102,14 @@ const Index = () => {
                   Settings
                 </Button>
               </Link>
+              {isStaff && (
+                <Link to="/staff">
+                  <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Staff Panel
+                  </Button>
+                </Link>
+              )}
             </div>
           )}
         </div>

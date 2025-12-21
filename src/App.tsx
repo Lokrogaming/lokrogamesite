@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Settings from "./pages/Settings";
 import Challenges from "./pages/Challenges";
 import UploadGame from "./pages/UploadGame";
+import StaffPanel from "./pages/StaffPanel";
 import NotFound from "./pages/NotFound";
 import { Snake } from "./components/games/Snake";
 import { TicTacToe } from "./components/games/TicTacToe";
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/blockblast" element={<Blockblast />} />
             <Route path="/space-invaders" element={<SpaceInvaders />} />
             <Route path="/solitaire" element={<Solitaire />} />
+            <Route path="/staff" element={<StaffPanel />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

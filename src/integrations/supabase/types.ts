@@ -260,10 +260,13 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          ban_expires_at: string | null
+          ban_reason: string | null
           created_at: string
           credits: number
           daily_challenges_completed: number
           id: string
+          is_banned: boolean
           last_challenge_reset: string | null
           last_credit_refill: string | null
           updated_at: string
@@ -272,10 +275,13 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          ban_expires_at?: string | null
+          ban_reason?: string | null
           created_at?: string
           credits?: number
           daily_challenges_completed?: number
           id?: string
+          is_banned?: boolean
           last_challenge_reset?: string | null
           last_credit_refill?: string | null
           updated_at?: string
@@ -284,15 +290,39 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          ban_expires_at?: string | null
+          ban_reason?: string | null
           created_at?: string
           credits?: number
           daily_challenges_completed?: number
           id?: string
+          is_banned?: boolean
           last_challenge_reset?: string | null
           last_credit_refill?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      staff_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -330,6 +360,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_moderation_logs: {
+        Row: {
+          action: Database["public"]["Enums"]["moderation_action"]
+          created_at: string
+          duration_minutes: number | null
+          expires_at: string | null
+          id: string
+          moderator_id: string
+          reason: string
+          target_user_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["moderation_action"]
+          created_at?: string
+          duration_minutes?: number | null
+          expires_at?: string | null
+          id?: string
+          moderator_id: string
+          reason: string
+          target_user_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["moderation_action"]
+          created_at?: string
+          duration_minutes?: number | null
+          expires_at?: string | null
+          id?: string
+          moderator_id?: string
+          reason?: string
+          target_user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
@@ -376,6 +439,7 @@ export type Database = {
         | "ai"
         | "multiplayer"
         | "community"
+      moderation_action: "ban" | "kick" | "timeout" | "unban" | "warn"
       mood_type: "very_sad" | "sad" | "neutral" | "happy" | "very_happy"
     }
     CompositeTypes: {
@@ -514,6 +578,7 @@ export const Constants = {
         "multiplayer",
         "community",
       ],
+      moderation_action: ["ban", "kick", "timeout", "unban", "warn"],
       mood_type: ["very_sad", "sad", "neutral", "happy", "very_happy"],
     },
   },
