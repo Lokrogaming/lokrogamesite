@@ -1,8 +1,9 @@
 import { GameCard } from "@/components/GameCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
-import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins } from "lucide-react";
+import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload } from "lucide-react";
 
 const games = {
   arcade: [
@@ -52,7 +53,15 @@ const Index = () => {
                       <Coins className="h-4 w-4 text-neon-orange" />
                       <span className="font-display text-sm text-neon-orange">{profile?.credits ?? 0}</span>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={signOut}>
+                    <Link to="/settings">
+                      <Avatar className="h-9 w-9 border border-primary cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
+                        <AvatarImage src={profile?.avatar_url || ''} alt={profile?.username || 'User'} />
+                        <AvatarFallback className="bg-muted">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                    <Button variant="ghost" size="icon" onClick={signOut}>
                       <LogOut className="h-4 w-4" />
                     </Button>
                   </>
@@ -71,6 +80,30 @@ const Index = () => {
           <p className="max-w-2xl text-muted-foreground">
             Play classic browser games. {user ? `Welcome back, ${profile?.username || 'Player'}!` : 'Login to track progress and earn credits.'}
           </p>
+
+          {/* Quick Actions */}
+          {user && (
+            <div className="flex flex-wrap gap-3 mt-6">
+              <Link to="/challenges">
+                <Button variant="outline" size="sm" className="border-neon-orange/50 text-neon-orange hover:bg-neon-orange/10">
+                  <Trophy className="h-4 w-4 mr-2" />
+                  Daily Challenges
+                </Button>
+              </Link>
+              <Link to="/upload-game">
+                <Button variant="outline" size="sm" className="border-neon-purple/50 text-neon-purple hover:bg-neon-purple/10">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Submit a Game
+                </Button>
+              </Link>
+              <Link to="/settings">
+                <Button variant="outline" size="sm">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
