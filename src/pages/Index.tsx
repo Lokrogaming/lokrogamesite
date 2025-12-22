@@ -3,7 +3,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
-import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload, Shield } from "lucide-react";
+import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload, Shield, MessageCircle } from "lucide-react";
+import GlobalChat from "@/components/GlobalChat";
 
 const games = {
   arcade: [
@@ -153,6 +154,15 @@ const Index = () => {
               <GameCard key={game.path} {...game} />
             ))}
           </div>
+        </section>
+
+        {/* Global Chat */}
+        <section className="mb-12">
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+            <MessageCircle className="h-6 w-6 text-neon-purple" />
+            Global Chat
+          </h2>
+          <GlobalChat />
         </section>
       </main>
 
