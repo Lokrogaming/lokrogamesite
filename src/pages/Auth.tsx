@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Loader2, Mail, Phone, User } from 'lucide-react';
+import { ArrowLeft, Loader2, Mail, Phone, KeyRound } from 'lucide-react';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Invalid email address');
@@ -15,22 +15,43 @@ const passwordSchema = z.string().min(6, 'Password must be at least 6 characters
 const phoneSchema = z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number (use international format: +1234567890)');
 
 type AuthMethod = 'email' | 'phone';
+type AuthView = 'login' | 'signup' | 'forgot-password' | 'reset-password';
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const [searchParams] = useSearchParams();
+  const [authView, setAuthView] = useState<AuthView>('login');
   const [authMethod, setAuthMethod] = useState<AuthMethod>('email');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Check for password recovery mode from URL hash
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get('type');
+    const accessToken = hashParams.get('access_token');
+    
+    if (type === 'recovery' && accessToken) {
+      setAuthView('reset-password');
+    }
+  }, []);
+
+  // Redirect if already logged in (except for reset-password)
+  useEffect(() => {
+    if (user && authView !== 'reset-password') {
+      navigate('/');
+    }
+  }, [user, authView, navigate]);
 
   const validateEmail = () => {
     const newErrors: Record<string, string> = {};
@@ -40,9 +61,11 @@ const Auth = () => {
       newErrors.email = emailResult.error.errors[0].message;
     }
     
-    const passwordResult = passwordSchema.safeParse(password);
-    if (!passwordResult.success) {
-      newErrors.password = passwordResult.error.errors[0].message;
+    if (authView !== 'forgot-password') {
+      const passwordResult = passwordSchema.safeParse(password);
+      if (!passwordResult.success) {
+        newErrors.password = passwordResult.error.errors[0].message;
+      }
     }
     
     setErrors(newErrors);
@@ -61,6 +84,87 @@ const Auth = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const validateResetPassword = () => {
+    const newErrors: Record<string, string> = {};
+    
+    const passwordResult = passwordSchema.safeParse(password);
+    if (!passwordResult.success) {
+      newErrors.password = passwordResult.error.errors[0].message;
+    }
+    
+    if (password !== confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      setErrors({ email: emailResult.error.errors[0].message });
+      return;
+    }
+    
+    setLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth`
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Reset Email Sent",
+        description: "Check your email for the password reset link"
+      });
+      setAuthView('login');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send reset email",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateResetPassword()) return;
+    
+    setLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.updateUser({ password });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Password Updated",
+        description: "Your password has been reset successfully"
+      });
+      
+      // Clear the hash and redirect
+      window.location.hash = '';
+      navigate('/');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to reset password",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -69,7 +173,7 @@ const Auth = () => {
     setLoading(true);
     
     try {
-      if (isLogin) {
+      if (authView === 'login') {
         const { error } = await signIn(email, password);
         if (error) {
           if (error.message.includes('Invalid login credentials')) {
@@ -204,6 +308,143 @@ const Auth = () => {
     }
   };
 
+  // Reset Password View
+  if (authView === 'reset-password') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-gradient-to-b from-neon-cyan/5 to-transparent" />
+        
+        <div className="w-full max-w-md relative">
+          <div className="card-gradient border border-border rounded-lg p-8 shadow-lg">
+            <div className="flex items-center justify-center mb-6">
+              <KeyRound className="h-12 w-12 text-primary" />
+            </div>
+            
+            <h1 className="font-display text-2xl font-bold text-center mb-2">
+              Reset Your Password
+            </h1>
+            
+            <p className="text-center text-muted-foreground mb-6">
+              Enter your new password below
+            </p>
+
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="bg-background/50"
+                />
+                {errors.password && (
+                  <p className="text-sm text-destructive">{errors.password}</p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="bg-background/50"
+                />
+                {errors.confirmPassword && (
+                  <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                )}
+              </div>
+              
+              <Button
+                type="submit"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={loading}
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Reset Password
+              </Button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Forgot Password View
+  if (authView === 'forgot-password') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-gradient-to-b from-neon-cyan/5 to-transparent" />
+        
+        <div className="w-full max-w-md relative">
+          <Button
+            variant="ghost"
+            onClick={() => setAuthView('login')}
+            className="absolute -top-16 left-0 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Login
+          </Button>
+          
+          <div className="card-gradient border border-border rounded-lg p-8 shadow-lg">
+            <div className="flex items-center justify-center mb-6">
+              <Mail className="h-12 w-12 text-primary" />
+            </div>
+            
+            <h1 className="font-display text-2xl font-bold text-center mb-2">
+              Forgot Password?
+            </h1>
+            
+            <p className="text-center text-muted-foreground mb-6">
+              Enter your email and we'll send you a reset link
+            </p>
+
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  className="bg-background/50"
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email}</p>
+                )}
+              </div>
+              
+              <Button
+                type="submit"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                disabled={loading}
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Send Reset Link
+              </Button>
+            </form>
+            
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => setAuthView('login')}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                Remember your password? Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main Login/Signup View
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-gradient-to-b from-neon-cyan/5 to-transparent" />
@@ -225,7 +466,7 @@ const Auth = () => {
           </h1>
           
           <p className="text-center text-muted-foreground mb-6">
-            {isLogin ? 'Login to track your progress' : 'Create an account to start playing'}
+            {authView === 'login' ? 'Login to track your progress' : 'Create an account to start playing'}
           </p>
 
           {/* Google Login */}
@@ -280,7 +521,7 @@ const Auth = () => {
 
             <TabsContent value="email">
               <form onSubmit={handleEmailSubmit} className="space-y-4">
-                {!isLogin && (
+                {authView === 'signup' && (
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
                     <Input
@@ -310,7 +551,18 @@ const Auth = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    {authView === 'login' && (
+                      <button
+                        type="button"
+                        onClick={() => setAuthView('forgot-password')}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Forgot password?
+                      </button>
+                    )}
+                  </div>
                   <Input
                     id="password"
                     type="password"
@@ -330,14 +582,14 @@ const Auth = () => {
                   disabled={loading}
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {isLogin ? 'Login' : 'Create Account'}
+                  {authView === 'login' ? 'Login' : 'Create Account'}
                 </Button>
               </form>
             </TabsContent>
 
             <TabsContent value="phone">
               <form onSubmit={handlePhoneSubmit} className="space-y-4">
-                {!isLogin && !otpSent && (
+                {authView === 'signup' && !otpSent && (
                   <div className="space-y-2">
                     <Label htmlFor="phone-username">Username</Label>
                     <Input
@@ -412,14 +664,14 @@ const Auth = () => {
             <button
               type="button"
               onClick={() => {
-                setIsLogin(!isLogin);
+                setAuthView(authView === 'login' ? 'signup' : 'login');
                 setOtpSent(false);
                 setOtp('');
                 setErrors({});
               }}
               className="text-sm text-muted-foreground hover:text-primary transition-colors"
             >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Login"}
+              {authView === 'login' ? "Don't have an account? Sign up" : "Already have an account? Login"}
             </button>
           </div>
         </div>
