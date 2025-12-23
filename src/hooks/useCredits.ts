@@ -3,7 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import creditsConfig from '@/JSON/credits.json';
 
 export const useCredits = () => {
-  const { profile, updateCredits } = useAuth();
+  const { profile, updateCredits, refreshProfile } = useAuth();
   const { toast } = useToast();
 
   const getGameCost = (gameSlug: string): number => {
@@ -38,16 +38,37 @@ export const useCredits = () => {
       return false;
     }
 
-    await updateCredits(-cost);
+    const success = await updateCredits(-cost);
+    
+    if (!success) {
+      toast({
+        title: "Transaction Failed",
+        description: "Could not process credit transaction. Please try again.",
+        variant: "destructive"
+      });
+      return false;
+    }
+    
     return true;
   };
 
-  const earnCredits = async (amount: number, reason: string) => {
-    await updateCredits(amount);
-    toast({
-      title: "Credits Earned!",
-      description: `+${amount} credits: ${reason}`
-    });
+  const earnCredits = async (amount: number, reason: string): Promise<boolean> => {
+    const success = await updateCredits(amount);
+    
+    if (success) {
+      toast({
+        title: "Credits Earned!",
+        description: `+${amount} credits: ${reason}`
+      });
+    } else {
+      toast({
+        title: "Failed to Add Credits",
+        description: "Could not process credit reward. Please try again.",
+        variant: "destructive"
+      });
+    }
+    
+    return success;
   };
 
   return {

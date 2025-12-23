@@ -23,7 +23,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-  updateCredits: (amount: number) => Promise<void>;
+  updateCredits: (amount: number) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -122,17 +122,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateCredits = async (amount: number) => {
-    if (!user || !profile) return;
+  const updateCredits = async (amount: number): Promise<boolean> => {
+    if (!user || !profile) return false;
     
-    const newCredits = profile.credits + amount;
-    const { error } = await supabase
-      .from('profiles')
-      .update({ credits: newCredits })
-      .eq('user_id', user.id);
-    
-    if (!error) {
-      setProfile({ ...profile, credits: newCredits });
+    try {
+      if (amount < 0) {
+        // Spending credits - use secure RPC function
+        const { data, error } = await supabase.rpc('spend_credits', {
+          _amount: Math.abs(amount),
+          _reason: 'game_play'
+        });
+        
+        if (error) {
+          console.error('Failed to spend credits:', error.message);
+          return false;
+        }
+        
+        if (data === false) {
+          // Insufficient credits
+          return false;
+        }
+      } else {
+        // Earning credits - use secure RPC function
+        const { error } = await supabase.rpc('earn_credits', {
+          _amount: amount,
+          _reason: 'reward'
+        });
+        
+        if (error) {
+          console.error('Failed to earn credits:', error.message);
+          return false;
+        }
+      }
+      
+      // Refresh profile to get updated credits
+      await refreshProfile();
+      return true;
+    } catch (error) {
+      console.error('Credit update failed:', error);
+      return false;
     }
   };
 
