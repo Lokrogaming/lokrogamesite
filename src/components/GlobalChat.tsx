@@ -40,7 +40,9 @@ import {
   X,
   Loader2,
   AtSign,
+  Shield,
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { UserProfileModal } from './UserProfileModal';
 
@@ -84,6 +86,7 @@ const GlobalChat = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [profiles, setProfiles] = useState<Record<string, { username: string | null; avatar_url: string | null }>>({});
+  const [staffUsers, setStaffUsers] = useState<Set<string>>(new Set());
   
   // Profile modal state
   const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
@@ -115,7 +118,7 @@ const GlobalChat = () => {
       .slice(0, 5);
   }, [availableUsers, mentionQuery]);
 
-  // Fetch profiles for user IDs
+  // Fetch profiles and staff status for user IDs
   const fetchProfiles = async (userIds: string[]) => {
     const uniqueIds = [...new Set(userIds)].filter(id => !profiles[id]);
     if (uniqueIds.length === 0) return;
@@ -131,6 +134,18 @@ const GlobalChat = () => {
         newProfiles[p.user_id] = { username: p.username, avatar_url: p.avatar_url };
       });
       setProfiles(prev => ({ ...prev, ...newProfiles }));
+    }
+
+    // Fetch staff roles for these users
+    const { data: rolesData } = await supabase
+      .from('user_roles')
+      .select('user_id, role')
+      .in('user_id', uniqueIds)
+      .in('role', ['staff', 'admin', 'moderator']);
+
+    if (rolesData) {
+      const newStaffIds = rolesData.map(r => r.user_id);
+      setStaffUsers(prev => new Set([...prev, ...newStaffIds]));
     }
   };
 
@@ -494,9 +509,12 @@ const GlobalChat = () => {
                     <div className="flex items-center gap-2">
                       <button 
                         onClick={() => openProfileModal(msg.user_id)}
-                        className="font-medium text-sm text-foreground hover:text-primary hover:underline transition-colors"
+                        className="font-medium text-sm text-foreground hover:text-primary hover:underline transition-colors flex items-center gap-1"
                       >
                         {msgProfile.username || 'Anonymous'}
+                        {staffUsers.has(msg.user_id) && (
+                          <Shield className="h-3.5 w-3.5 text-primary" />
+                        )}
                       </button>
                       <span className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}

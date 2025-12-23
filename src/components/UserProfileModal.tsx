@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { User, Gamepad2, Link, Calendar } from 'lucide-react';
+import { User, Gamepad2, Link, Calendar, Shield } from 'lucide-react';
 
 interface UserProfile {
   user_id: string;
@@ -14,6 +14,7 @@ interface UserProfile {
   favorite_game: string | null;
   social_link: string | null;
   created_at: string;
+  isStaff?: boolean;
 }
 
 interface UserProfileModalProps {
@@ -36,13 +37,27 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
     if (!userId) return;
     
     setLoading(true);
-    const { data } = await supabase
+    
+    // Fetch profile data
+    const { data: profileData } = await supabase
       .from('profiles')
       .select('user_id, username, avatar_url, description, tag, favorite_game, social_link, created_at')
       .eq('user_id', userId)
       .maybeSingle();
     
-    setProfile(data);
+    // Check if user is staff
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .in('role', ['staff', 'admin', 'moderator'])
+      .maybeSingle();
+    
+    if (profileData) {
+      setProfile({ ...profileData, isStaff: !!roleData });
+    } else {
+      setProfile(null);
+    }
     setLoading(false);
   };
 
@@ -76,12 +91,25 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="text-xl font-semibold">{profile.username || 'Anonymous'}</h3>
-                {profile.tag && (
-                  <Badge variant="secondary" className="mt-1">
-                    {profile.tag}
-                  </Badge>
-                )}
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-semibold">{profile.username || 'Anonymous'}</h3>
+                  {profile.isStaff && (
+                    <Shield className="h-5 w-5 text-primary" />
+                  )}
+                </div>
+                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  {profile.isStaff && (
+                    <Badge className="bg-primary/10 text-primary border-primary/20">
+                      <Shield className="h-3 w-3 mr-1" />
+                      Staff
+                    </Badge>
+                  )}
+                  {profile.tag && (
+                    <Badge variant="secondary">
+                      {profile.tag}
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
 
