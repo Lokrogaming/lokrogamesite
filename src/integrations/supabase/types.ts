@@ -300,10 +300,14 @@ export type Database = {
           created_at: string
           credits: number
           daily_challenges_completed: number
+          description: string | null
+          favorite_game: string | null
           id: string
           is_banned: boolean
           last_challenge_reset: string | null
           last_credit_refill: string | null
+          social_link: string | null
+          tag: string | null
           updated_at: string
           user_id: string
           username: string | null
@@ -315,10 +319,14 @@ export type Database = {
           created_at?: string
           credits?: number
           daily_challenges_completed?: number
+          description?: string | null
+          favorite_game?: string | null
           id?: string
           is_banned?: boolean
           last_challenge_reset?: string | null
           last_credit_refill?: string | null
+          social_link?: string | null
+          tag?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -330,10 +338,14 @@ export type Database = {
           created_at?: string
           credits?: number
           daily_challenges_completed?: number
+          description?: string | null
+          favorite_game?: string | null
           id?: string
           is_banned?: boolean
           last_challenge_reset?: string | null
           last_credit_refill?: string | null
+          social_link?: string | null
+          tag?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
