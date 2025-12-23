@@ -169,7 +169,7 @@ const Index = () => {
       <footer className="border-t border-border py-6">
         <div className="container text-center">
           <p className="font-body text-sm text-muted-foreground">
-            Built with React • 14 Games Available • Works on Mobile & Desktop <a
+            Built with React • 14 Games Available • Works on Mobile & Desktop • <a
   href="https://star-dev.xyz/imprint"
   target="_blank"
   rel="noopener noreferrer"
