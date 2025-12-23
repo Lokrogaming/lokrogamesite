@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
@@ -34,8 +39,10 @@ import {
   User,
   X,
   Loader2,
+  AtSign,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { UserProfileModal } from './UserProfileModal';
 
 interface Message {
   id: string;
@@ -78,11 +85,35 @@ const GlobalChat = () => {
   const [sending, setSending] = useState(false);
   const [profiles, setProfiles] = useState<Record<string, { username: string | null; avatar_url: string | null }>>({});
   
+  // Profile modal state
+  const [selectedProfileUserId, setSelectedProfileUserId] = useState<string | null>(null);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
+  
+  // Mention autocomplete state
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionAnchorPos, setMentionAnchorPos] = useState<number | null>(null);
+  const [showMentionPopover, setShowMentionPopover] = useState(false);
+  
   // Moderation dialog state
   const [moderationAction, setModerationAction] = useState<ModerationAction | null>(null);
   const [moderationReason, setModerationReason] = useState('');
   const [moderationDuration, setModerationDuration] = useState('60');
   const [moderating, setModerating] = useState(false);
+
+  // Get available usernames for mentions
+  const availableUsers = useMemo(() => {
+    return Object.entries(profiles)
+      .filter(([_, p]) => p.username)
+      .map(([userId, p]) => ({ userId, username: p.username! }));
+  }, [profiles]);
+
+  const filteredMentionUsers = useMemo(() => {
+    if (!mentionQuery) return availableUsers.slice(0, 5);
+    const query = mentionQuery.toLowerCase();
+    return availableUsers
+      .filter(u => u.username.toLowerCase().includes(query))
+      .slice(0, 5);
+  }, [availableUsers, mentionQuery]);
 
   // Fetch profiles for user IDs
   const fetchProfiles = async (userIds: string[]) => {
@@ -207,6 +238,47 @@ const GlobalChat = () => {
     };
   }, []);
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewMessage(value);
+    
+    // Check for mention trigger
+    const cursorPos = e.target.selectionStart || 0;
+    const textBeforeCursor = value.slice(0, cursorPos);
+    const mentionMatch = textBeforeCursor.match(/@(\w*)$/);
+    
+    if (mentionMatch) {
+      setMentionQuery(mentionMatch[1]);
+      setMentionAnchorPos(cursorPos - mentionMatch[0].length);
+      setShowMentionPopover(true);
+    } else {
+      setMentionQuery(null);
+      setMentionAnchorPos(null);
+      setShowMentionPopover(false);
+    }
+  };
+
+  const insertMention = (username: string) => {
+    if (mentionAnchorPos === null) return;
+    
+    const beforeMention = newMessage.slice(0, mentionAnchorPos);
+    const cursorPos = inputRef.current?.selectionStart || newMessage.length;
+    const afterCursor = newMessage.slice(cursorPos);
+    
+    const newValue = `${beforeMention}@${username} ${afterCursor}`;
+    setNewMessage(newValue);
+    setShowMentionPopover(false);
+    setMentionQuery(null);
+    setMentionAnchorPos(null);
+    
+    // Focus input after inserting
+    setTimeout(() => {
+      inputRef.current?.focus();
+      const newCursorPos = beforeMention.length + username.length + 2;
+      inputRef.current?.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
+
   const handleSend = async () => {
     if (!newMessage.trim() || !user) return;
 
@@ -308,6 +380,58 @@ const GlobalChat = () => {
 
   const getProfile = (userId: string) => profiles[userId] || { username: null, avatar_url: null };
 
+  const openProfileModal = (userId: string) => {
+    setSelectedProfileUserId(userId);
+    setProfileModalOpen(true);
+  };
+
+  // Render message content with mentions highlighted
+  const renderMessageContent = (content: string) => {
+    const mentionRegex = /@(\w+)/g;
+    const parts: (string | JSX.Element)[] = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = mentionRegex.exec(content)) !== null) {
+      // Add text before the mention
+      if (match.index > lastIndex) {
+        parts.push(content.slice(lastIndex, match.index));
+      }
+      
+      const mentionedUsername = match[1];
+      const mentionedUser = availableUsers.find(
+        u => u.username.toLowerCase() === mentionedUsername.toLowerCase()
+      );
+      
+      if (mentionedUser) {
+        parts.push(
+          <button
+            key={match.index}
+            onClick={() => openProfileModal(mentionedUser.userId)}
+            className="text-primary font-medium hover:underline"
+          >
+            @{mentionedUser.username}
+          </button>
+        );
+      } else {
+        parts.push(
+          <span key={match.index} className="text-primary">
+            @{mentionedUsername}
+          </span>
+        );
+      }
+      
+      lastIndex = match.index + match[0].length;
+    }
+
+    // Add remaining text
+    if (lastIndex < content.length) {
+      parts.push(content.slice(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : content;
+  };
+
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
@@ -356,7 +480,10 @@ const GlobalChat = () => {
 
               return (
                 <div key={msg.id} className="group flex gap-3">
-                  <Avatar className="h-8 w-8 shrink-0">
+                  <Avatar 
+                    className="h-8 w-8 shrink-0 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                    onClick={() => openProfileModal(msg.user_id)}
+                  >
                     <AvatarImage src={msgProfile.avatar_url || ''} />
                     <AvatarFallback className="bg-muted text-xs">
                       {msgProfile.username?.[0]?.toUpperCase() || <User className="h-3 w-3" />}
@@ -365,9 +492,12 @@ const GlobalChat = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-sm text-foreground">
+                      <button 
+                        onClick={() => openProfileModal(msg.user_id)}
+                        className="font-medium text-sm text-foreground hover:text-primary hover:underline transition-colors"
+                      >
                         {msgProfile.username || 'Anonymous'}
-                      </span>
+                      </button>
                       <span className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
                       </span>
@@ -384,7 +514,7 @@ const GlobalChat = () => {
                       </div>
                     )}
 
-                    <p className="text-sm text-foreground break-words">{msg.content}</p>
+                    <p className="text-sm text-foreground break-words">{renderMessageContent(msg.content)}</p>
                   </div>
 
                   {/* Actions */}
@@ -399,6 +529,21 @@ const GlobalChat = () => {
                       }}
                     >
                       <Reply className="h-3 w-3" />
+                    </Button>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => {
+                        const username = msgProfile.username;
+                        if (username) {
+                          setNewMessage(prev => prev + `@${username} `);
+                          inputRef.current?.focus();
+                        }
+                      }}
+                    >
+                      <AtSign className="h-3 w-3" />
                     </Button>
 
                     {(isOwn || isStaff) && (
@@ -498,7 +643,32 @@ const GlobalChat = () => {
       )}
 
       {/* Input */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t border-border relative">
+        {/* Mention autocomplete popover */}
+        {showMentionPopover && filteredMentionUsers.length > 0 && (
+          <div className="absolute bottom-full left-4 right-4 mb-2 bg-popover border border-border rounded-lg shadow-lg p-1 z-50">
+            <div className="text-xs text-muted-foreground px-2 py-1 mb-1">
+              <AtSign className="h-3 w-3 inline mr-1" />
+              Mention a user
+            </div>
+            {filteredMentionUsers.map((u) => (
+              <button
+                key={u.userId}
+                onClick={() => insertMention(u.username)}
+                className="w-full flex items-center gap-2 px-2 py-1.5 rounded hover:bg-muted transition-colors text-left"
+              >
+                <Avatar className="h-5 w-5">
+                  <AvatarImage src={profiles[u.userId]?.avatar_url || ''} />
+                  <AvatarFallback className="text-[10px]">
+                    {u.username[0]?.toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-sm font-medium">{u.username}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -509,8 +679,8 @@ const GlobalChat = () => {
           <Input
             ref={inputRef}
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
+            onChange={handleInputChange}
+            placeholder="Type a message... Use @ to mention"
             className="flex-1 bg-background/50"
             maxLength={500}
             disabled={sending}
@@ -583,6 +753,13 @@ const GlobalChat = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        userId={selectedProfileUserId}
+        open={profileModalOpen}
+        onOpenChange={setProfileModalOpen}
+      />
     </div>
   );
 };

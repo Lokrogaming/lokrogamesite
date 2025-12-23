@@ -1,17 +1,27 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Camera, Loader2, User, Save, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Camera, Loader2, User, Save, KeyRound, Eye, EyeOff, Gamepad2, Link, Tag } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { z } from 'zod';
 
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+
+interface ExtendedProfile {
+  username: string | null;
+  avatar_url: string | null;
+  description: string | null;
+  tag: string | null;
+  favorite_game: string | null;
+  social_link: string | null;
+}
 
 const Settings = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -20,8 +30,13 @@ const Settings = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [username, setUsername] = useState(profile?.username || '');
+  const [description, setDescription] = useState('');
+  const [tag, setTag] = useState('');
+  const [favoriteGame, setFavoriteGame] = useState('');
+  const [socialLink, setSocialLink] = useState('');
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loadingProfile, setLoadingProfile] = useState(true);
   
   // Password change state
   const [currentPassword, setCurrentPassword] = useState('');
@@ -32,6 +47,30 @@ const Settings = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
+
+  // Fetch extended profile data
+  useEffect(() => {
+    const fetchExtendedProfile = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('username, avatar_url, description, tag, favorite_game, social_link')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (data) {
+        setUsername(data.username || '');
+        setDescription(data.description || '');
+        setTag(data.tag || '');
+        setFavoriteGame(data.favorite_game || '');
+        setSocialLink(data.social_link || '');
+      }
+      setLoadingProfile(false);
+    };
+
+    fetchExtendedProfile();
+  }, [user]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -98,12 +137,37 @@ const Settings = () => {
   const handleSave = async () => {
     if (!user) return;
 
+    // Validate inputs
+    if (description.length > 500) {
+      toast({
+        title: 'Description too long',
+        description: 'Description must be 500 characters or less',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (tag.length > 30) {
+      toast({
+        title: 'Tag too long',
+        description: 'Tag must be 30 characters or less',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setSaving(true);
 
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ username: username.trim() || null })
+        .update({ 
+          username: username.trim() || null,
+          description: description.trim() || null,
+          tag: tag.trim() || null,
+          favorite_game: favoriteGame.trim() || null,
+          social_link: socialLink.trim() || null
+        })
         .eq('user_id', user.id);
 
       if (error) throw error;
@@ -114,10 +178,10 @@ const Settings = () => {
         title: 'Settings saved!',
         description: 'Your profile has been updated'
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to save settings',
+        description: error.message || 'Failed to save settings',
         variant: 'destructive'
       });
     } finally {
@@ -212,6 +276,14 @@ const Settings = () => {
 
   const isEmailUser = user.app_metadata?.provider === 'email' || user.email;
 
+  if (loadingProfile) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="absolute inset-0 bg-gradient-to-b from-neon-cyan/5 to-transparent" />
@@ -260,7 +332,7 @@ const Settings = () => {
             <p className="mt-2 text-sm text-muted-foreground">Click to change avatar</p>
           </div>
 
-          {/* Username Section */}
+          {/* Profile Section */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
@@ -272,6 +344,69 @@ const Settings = () => {
                 placeholder="Choose a username"
                 className="bg-background/50"
                 maxLength={30}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tag" className="flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Tag / Status
+              </Label>
+              <Input
+                id="tag"
+                type="text"
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+                placeholder="e.g. Pro Gamer, Newbie, Speedrunner"
+                className="bg-background/50"
+                maxLength={30}
+              />
+              <p className="text-xs text-muted-foreground">Shown as a badge on your profile</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">About Me</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Tell others about yourself..."
+                className="bg-background/50 resize-none"
+                rows={3}
+                maxLength={500}
+              />
+              <p className="text-xs text-muted-foreground text-right">{description.length}/500</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="favorite-game" className="flex items-center gap-2">
+                <Gamepad2 className="h-4 w-4" />
+                Favorite Game
+              </Label>
+              <Input
+                id="favorite-game"
+                type="text"
+                value={favoriteGame}
+                onChange={(e) => setFavoriteGame(e.target.value)}
+                placeholder="e.g. Tetris, Snake, 2048"
+                className="bg-background/50"
+                maxLength={50}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="social-link" className="flex items-center gap-2">
+                <Link className="h-4 w-4" />
+                Social Link
+              </Label>
+              <Input
+                id="social-link"
+                type="text"
+                value={socialLink}
+                onChange={(e) => setSocialLink(e.target.value)}
+                placeholder="https://twitter.com/yourprofile"
+                className="bg-background/50"
+                maxLength={200}
               />
             </div>
 
