@@ -316,6 +316,15 @@ const GlobalChat = () => {
     } else {
       setNewMessage('');
       setReplyTo(null);
+      
+      // Award random XP for chatting
+      const { data: xpGained } = await supabase.rpc('add_chat_xp');
+      if (xpGained) {
+        toast({
+          title: `+${xpGained} XP`,
+          description: 'You earned XP for chatting!',
+        });
+      }
     }
 
     setSending(false);

@@ -345,6 +345,7 @@ export type Database = {
           updated_at: string
           user_id: string
           username: string | null
+          xp: number
         }
         Insert: {
           avatar_url?: string | null
@@ -365,6 +366,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           username?: string | null
+          xp?: number
         }
         Update: {
           avatar_url?: string | null
@@ -385,6 +387,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+          xp?: number
         }
         Relationships: []
       }
@@ -503,6 +506,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_chat_xp: { Args: never; Returns: number }
       create_voucher: { Args: { _amount: number }; Returns: string }
       earn_credits: {
         Args: { _amount: number; _reason?: string }
