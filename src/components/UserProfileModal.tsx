@@ -2,11 +2,22 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
-import { User, Gamepad2, Link, Calendar, Shield } from 'lucide-react';
+import { User, Gamepad2, Link, Calendar, Shield, Zap } from 'lucide-react';
 import { RankBadge } from './RankBadge';
 
 type UserRank = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master' | 'legend';
+
+const rankThresholds: { rank: UserRank; minXp: number }[] = [
+  { rank: 'bronze', minXp: 0 },
+  { rank: 'silver', minXp: 500 },
+  { rank: 'gold', minXp: 2000 },
+  { rank: 'platinum', minXp: 5000 },
+  { rank: 'diamond', minXp: 10000 },
+  { rank: 'master', minXp: 25000 },
+  { rank: 'legend', minXp: 50000 },
+];
 
 interface UserProfile {
   user_id: string;
@@ -18,6 +29,7 @@ interface UserProfile {
   social_link: string | null;
   created_at: string;
   rank: UserRank | null;
+  xp: number;
   isStaff?: boolean;
 }
 
@@ -45,7 +57,7 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
     // Fetch profile data
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('user_id, username, avatar_url, description, tag, favorite_game, social_link, created_at, rank')
+      .select('user_id, username, avatar_url, description, tag, favorite_game, social_link, created_at, rank, xp')
       .eq('user_id', userId)
       .maybeSingle();
     
@@ -71,6 +83,25 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const getXpProgress = (xp: number, rank: UserRank | null) => {
+    const currentRankIndex = rankThresholds.findIndex(r => r.rank === rank);
+    const nextRank = rankThresholds[currentRankIndex + 1];
+    const currentRankThreshold = rankThresholds[currentRankIndex];
+    
+    if (!nextRank) return { progress: 100, currentXp: xp, nextXp: xp, nextRankName: 'Max' };
+    
+    const xpInCurrentRank = xp - currentRankThreshold.minXp;
+    const xpNeededForNextRank = nextRank.minXp - currentRankThreshold.minXp;
+    const progress = Math.min((xpInCurrentRank / xpNeededForNextRank) * 100, 100);
+    
+    return { 
+      progress, 
+      currentXp: xp, 
+      nextXp: nextRank.minXp, 
+      nextRankName: nextRank.rank.charAt(0).toUpperCase() + nextRank.rank.slice(1) 
+    };
   };
 
   return (
@@ -119,6 +150,29 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
                 </div>
               </div>
             </div>
+
+            {/* XP Progress */}
+            {profile.rank && (
+              <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-yellow-500" />
+                    <span className="font-medium">{profile.xp.toLocaleString()} XP</span>
+                  </div>
+                  <span className="text-muted-foreground">
+                    Next: {getXpProgress(profile.xp, profile.rank).nextRankName}
+                  </span>
+                </div>
+                <Progress 
+                  value={getXpProgress(profile.xp, profile.rank).progress} 
+                  className="h-2"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{profile.xp.toLocaleString()}</span>
+                  <span>{getXpProgress(profile.xp, profile.rank).nextXp.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
 
             {/* Description */}
             {profile.description && (
