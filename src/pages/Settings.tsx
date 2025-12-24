@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Camera, Loader2, User, Save, KeyRound, Eye, EyeOff, Gamepad2, Link, Tag } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { VoucherSystem } from '@/components/VoucherSystem';
 import { z } from 'zod';
 
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -530,6 +531,10 @@ const Settings = () => {
               </div>
             </>
           )}
+
+          {/* Voucher System Section */}
+          <Separator className="my-8" />
+          <VoucherSystem />
         </div>
       </div>
     </div>
