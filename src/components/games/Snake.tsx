@@ -1,11 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, RotateCcw, Home } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight, RotateCcw, Home, Coins } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCredits } from "@/hooks/useCredits";
+import { useAuth } from "@/contexts/AuthContext";
 
 const GRID_SIZE = 20;
 const CELL_SIZE = 15;
 const INITIAL_SPEED = 150;
+const GAME_SLUG = "snake";
+const WIN_SCORE = 100; // Score needed to "win" and earn double credits
 
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT";
 type Position = { x: number; y: number };
@@ -17,7 +21,13 @@ export function Snake() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasPaid, setHasPaid] = useState(false);
+  const [hasWon, setHasWon] = useState(false);
   const directionRef = useRef(direction);
+  
+  const { credits, getGameCost, spendCredits, earnCredits, canAffordGame } = useCredits();
+  const { user } = useAuth();
+  const gameCost = getGameCost(GAME_SLUG);
 
   const generateFood = useCallback((currentSnake: Position[]): Position => {
     let newFood: Position;
@@ -30,7 +40,14 @@ export function Snake() {
     return newFood;
   }, []);
 
-  const resetGame = () => {
+  const resetGame = async () => {
+    // Require payment to start a new round
+    if (user) {
+      const paid = await spendCredits(GAME_SLUG);
+      if (!paid) return;
+      setHasPaid(true);
+    }
+    
     const initialSnake = [{ x: 10, y: 10 }];
     setSnake(initialSnake);
     setFood(generateFood(initialSnake));
@@ -39,7 +56,17 @@ export function Snake() {
     setIsGameOver(false);
     setScore(0);
     setIsPlaying(true);
+    setHasWon(false);
   };
+
+  // Check for win condition
+  useEffect(() => {
+    if (score >= WIN_SCORE && !hasWon && hasPaid && user) {
+      setHasWon(true);
+      const winAmount = gameCost * 2;
+      earnCredits(winAmount, `Won Snake with ${score} points!`);
+    }
+  }, [score, hasWon, hasPaid, user, gameCost, earnCredits]);
 
   const handleDirection = useCallback((newDirection: Direction) => {
     const opposites: Record<Direction, Direction> = {
@@ -140,10 +167,23 @@ export function Snake() {
           </Button>
         </Link>
         <h1 className="font-display text-3xl font-bold text-gradient">SNAKE</h1>
+        {user && (
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <Coins className="h-4 w-4" />
+            {credits}
+          </div>
+        )}
       </div>
 
-      <div className="font-display text-2xl text-neon-cyan">
-        Score: {score}
+      <div className="flex items-center gap-4">
+        <div className="font-display text-2xl text-neon-cyan">
+          Score: {score}
+        </div>
+        {hasWon && (
+          <div className="text-sm text-green-400 font-semibold animate-pulse">
+            +{gameCost * 2} Won!
+          </div>
+        )}
       </div>
 
       <div
@@ -198,14 +238,29 @@ export function Snake() {
 
         {/* Game Over / Start overlay */}
         {(!isPlaying || isGameOver) && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
-            <h2 className="mb-4 font-display text-2xl font-bold text-neon-magenta">
-              {isGameOver ? "GAME OVER" : "SNAKE"}
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+            <h2 className="mb-2 font-display text-2xl font-bold text-neon-magenta">
+              {isGameOver ? (hasWon ? "YOU WON!" : "GAME OVER") : "SNAKE"}
             </h2>
-            <Button onClick={resetGame} variant="neon">
+            {isGameOver && hasWon && (
+              <p className="mb-2 text-green-400 text-sm">+{gameCost * 2} credits earned!</p>
+            )}
+            {user && (
+              <p className="mb-4 text-xs text-muted-foreground">
+                Cost: {gameCost} credits • Win at {WIN_SCORE}+ pts = {gameCost * 2} credits
+              </p>
+            )}
+            <Button 
+              onClick={resetGame} 
+              variant="neon"
+              disabled={user ? !canAffordGame(GAME_SLUG) : false}
+            >
               <RotateCcw className="mr-2 h-4 w-4" />
-              {isGameOver ? "Play Again" : "Start Game"}
+              {isGameOver ? "Play Again" : "Start Game"} {user && `(${gameCost})`}
             </Button>
+            {user && !canAffordGame(GAME_SLUG) && (
+              <p className="mt-2 text-xs text-destructive">Not enough credits</p>
+            )}
           </div>
         )}
       </div>

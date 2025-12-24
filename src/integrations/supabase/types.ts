@@ -53,6 +53,39 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_vouchers: {
+        Row: {
+          amount: number
+          code: string
+          created_at: string | null
+          creator_id: string
+          id: string
+          is_redeemed: boolean | null
+          redeemed_at: string | null
+          redeemed_by: string | null
+        }
+        Insert: {
+          amount: number
+          code: string
+          created_at?: string | null
+          creator_id: string
+          id?: string
+          is_redeemed?: boolean | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+        }
+        Update: {
+          amount?: number
+          code?: string
+          created_at?: string | null
+          creator_id?: string
+          id?: string
+          is_redeemed?: boolean | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+        }
+        Relationships: []
+      }
       daily_challenges: {
         Row: {
           challenge_date: string
@@ -306,6 +339,7 @@ export type Database = {
           is_banned: boolean
           last_challenge_reset: string | null
           last_credit_refill: string | null
+          rank: Database["public"]["Enums"]["user_rank"] | null
           social_link: string | null
           tag: string | null
           updated_at: string
@@ -325,6 +359,7 @@ export type Database = {
           is_banned?: boolean
           last_challenge_reset?: string | null
           last_credit_refill?: string | null
+          rank?: Database["public"]["Enums"]["user_rank"] | null
           social_link?: string | null
           tag?: string | null
           updated_at?: string
@@ -344,6 +379,7 @@ export type Database = {
           is_banned?: boolean
           last_challenge_reset?: string | null
           last_credit_refill?: string | null
+          rank?: Database["public"]["Enums"]["user_rank"] | null
           social_link?: string | null
           tag?: string | null
           updated_at?: string
@@ -467,6 +503,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_voucher: { Args: { _amount: number }; Returns: string }
       earn_credits: {
         Args: { _amount: number; _reason?: string }
         Returns: boolean
@@ -479,6 +516,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      redeem_voucher: { Args: { _code: string }; Returns: number }
       spend_credits: {
         Args: { _amount: number; _reason?: string }
         Returns: boolean
@@ -496,6 +534,14 @@ export type Database = {
         | "community"
       moderation_action: "ban" | "kick" | "timeout" | "unban" | "warn"
       mood_type: "very_sad" | "sad" | "neutral" | "happy" | "very_happy"
+      user_rank:
+        | "bronze"
+        | "silver"
+        | "gold"
+        | "platinum"
+        | "diamond"
+        | "master"
+        | "legend"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -635,6 +681,15 @@ export const Constants = {
       ],
       moderation_action: ["ban", "kick", "timeout", "unban", "warn"],
       mood_type: ["very_sad", "sad", "neutral", "happy", "very_happy"],
+      user_rank: [
+        "bronze",
+        "silver",
+        "gold",
+        "platinum",
+        "diamond",
+        "master",
+        "legend",
+      ],
     },
   },
 } as const

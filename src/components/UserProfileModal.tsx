@@ -4,6 +4,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { User, Gamepad2, Link, Calendar, Shield } from 'lucide-react';
+import { RankBadge } from './RankBadge';
+
+type UserRank = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master' | 'legend';
 
 interface UserProfile {
   user_id: string;
@@ -14,6 +17,7 @@ interface UserProfile {
   favorite_game: string | null;
   social_link: string | null;
   created_at: string;
+  rank: UserRank | null;
   isStaff?: boolean;
 }
 
@@ -41,7 +45,7 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
     // Fetch profile data
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('user_id, username, avatar_url, description, tag, favorite_game, social_link, created_at')
+      .select('user_id, username, avatar_url, description, tag, favorite_game, social_link, created_at, rank')
       .eq('user_id', userId)
       .maybeSingle();
     
@@ -98,6 +102,9 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
                   )}
                 </div>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
+                  {profile.rank && (
+                    <RankBadge rank={profile.rank} size="sm" />
+                  )}
                   {profile.isStaff && (
                     <Badge className="bg-primary/10 text-primary border-primary/20">
                       <Shield className="h-3 w-3 mr-1" />
