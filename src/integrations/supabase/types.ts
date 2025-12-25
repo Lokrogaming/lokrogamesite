@@ -694,6 +694,8 @@ export const Constants = {
         "platinum",
         "diamond",
         "master",
+        "queen",
+        "king",
         "legend",
       ],
     },
