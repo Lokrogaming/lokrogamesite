@@ -1,5 +1,5 @@
 -- Create rank type enum
-CREATE TYPE public.user_rank AS ENUM ('bronze', 'silver', 'gold', 'platinum', 'diamond', 'master', 'legend');
+CREATE TYPE public.user_rank AS ENUM ('bronze', 'silver', 'gold', 'platinum', 'diamond', 'master', 'queen', 'king', 'legend');
 
 -- Add rank column to profiles
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS rank user_rank DEFAULT 'bronze';

@@ -30,6 +30,8 @@ BEGIN
   -- Determine rank based on XP thresholds
   _new_rank := CASE
     WHEN _new_xp >= 50000 THEN 'legend'::user_rank
+    WHEN _new_xp >= 40000 THEN 'king'::user_rank
+    WHEN _new_xp >= 30000 THEN 'queen'::user_rank
     WHEN _new_xp >= 25000 THEN 'master'::user_rank
     WHEN _new_xp >= 10000 THEN 'diamond'::user_rank
     WHEN _new_xp >= 5000 THEN 'platinum'::user_rank

@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
-import { Crown, Medal, Star, Gem, Award, Trophy, Sparkles } from 'lucide-react';
+import { Crown, Medal, Star, Gem, Award, Trophy, Sparkles, ChessQueen, ChessKing } from 'lucide-react';
 
-type UserRank = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master' | 'legend';
+type UserRank = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master' | 'queen' | 'king' | 'legend' ;
 
 interface RankBadgeProps {
   rank: UserRank | null;
@@ -51,12 +51,25 @@ const rankConfig: Record<UserRank, {
     className: 'bg-purple-500/20 text-purple-500 border-purple-500/30',
     iconClassName: 'text-purple-500'
   },
+  queen: {
+    label: 'Queen',
+    icon: ChessQueen,
+    className: 'bg-pink-500/20 text-gold-500 border-gold-500/30',
+    iconClassName: 'text-purple-500'
+  },
+  king: {
+    label: 'King',
+    icon: ChessKing,
+    className: 'bg-gold-500/20 text-gold-500 border-gold-500/30',
+    iconClassName: 'text-purple-500'
+  },
   legend: {
     label: 'Legend',
     icon: Sparkles,
     className: 'bg-gradient-to-r from-amber-500/20 via-red-500/20 to-purple-500/20 text-amber-400 border-amber-400/30',
     iconClassName: 'text-amber-400'
   }
+  
 };
 
 const sizeConfig = {
