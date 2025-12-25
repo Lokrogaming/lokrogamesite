@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { Crown, Medal, Star, Gem, Award, Trophy, Sparkles, ChessQueen, ChessKing } from 'lucide-react';
+import { Crown, Medal, Star, Gem, Award, Trophy, Sparkles } from 'lucide-react';
 
 type UserRank = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master' | 'queen' | 'king' | 'legend' ;
 
