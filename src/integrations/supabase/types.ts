@@ -544,6 +544,8 @@ export type Database = {
         | "gold"
         | "platinum"
         | "diamond"
+        | "queen"
+        | "king"
         | "master"
         | "legend"
     }
