@@ -12,6 +12,14 @@ export default {
         "2xl": "1400px",
       },
     },
+    theme: {
+  extend: {
+    colors: {
+      gold: '#FFD700',
+    },
+  },
+}
+
     extend: {
       fontFamily: {
         display: ['Orbitron', 'sans-serif'],

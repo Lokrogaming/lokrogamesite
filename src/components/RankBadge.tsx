@@ -54,13 +54,13 @@ const rankConfig: Record<UserRank, {
   queen: {
     label: 'Queen',
     icon: Crown,
-    className: 'bg-pink-500/20 text-gold-500 border-gold-500/30',
+    className: 'bg-pink-500/20 text-amber-500 border-gold/30',
     iconClassName: 'text-purple-500'
   },
   king: {
     label: 'King',
     icon: Crown,
-    className: 'bg-gold-500/20 text-gold-500 border-gold-500/30',
+    className: 'bg-gold/20 text-gold border-gold/30',
     iconClassName: 'text-purple-500'
   },
   legend: {
