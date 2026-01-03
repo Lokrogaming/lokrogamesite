@@ -56,9 +56,9 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
     
     setLoading(true);
     
-    // Fetch profile data
+    // Fetch profile data from public_profiles view (safe fields only)
     const { data: profileData } = await supabase
-      .from('profiles')
+      .from('public_profiles')
       .select('user_id, username, avatar_url, description, tag, favorite_game, social_link, created_at, rank, xp')
       .eq('user_id', userId)
       .maybeSingle();
