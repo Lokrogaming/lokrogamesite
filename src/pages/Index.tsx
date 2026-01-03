@@ -3,8 +3,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
-import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload, Shield, MessageCircle } from "lucide-react";
+import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload, Shield, MessageCircle, Crown } from "lucide-react";
 import GlobalChat from "@/components/GlobalChat";
+import { Ranklist } from "@/components/Ranklist";
 
 const games = {
   arcade: [
@@ -30,7 +31,7 @@ const games = {
 };
 
 const Index = () => {
-  const { user, profile, signOut, isLoading, isStaff } = useAuth();
+  const { user, profile, signOut, isLoading, isStaff, isOwner } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
@@ -111,6 +112,14 @@ const Index = () => {
                   </Button>
                 </Link>
               )}
+              {isOwner && (
+                <Link to="/owner">
+                  <Button variant="outline" size="sm" className="border-gold/50 text-gold hover:bg-gold/10">
+                    <Crown className="h-4 w-4 mr-2" />
+                    Owner Panel
+                  </Button>
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -154,6 +163,15 @@ const Index = () => {
               <GameCard key={game.path} {...game} />
             ))}
           </div>
+        </section>
+
+        {/* Ranklist */}
+        <section className="mb-12">
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+            <Trophy className="h-6 w-6 text-neon-orange" />
+            XP Ranklist
+          </h2>
+          <Ranklist />
         </section>
 
         {/* Global Chat */}

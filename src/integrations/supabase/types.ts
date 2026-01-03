@@ -429,6 +429,42 @@ export type Database = {
         }
         Relationships: []
       }
+      rank_configs: {
+        Row: {
+          color_class: string
+          created_at: string
+          display_name: string
+          icon_name: string
+          id: string
+          rank_key: string
+          sort_order: number
+          updated_at: string
+          xp_threshold: number
+        }
+        Insert: {
+          color_class?: string
+          created_at?: string
+          display_name: string
+          icon_name?: string
+          id?: string
+          rank_key: string
+          sort_order?: number
+          updated_at?: string
+          xp_threshold: number
+        }
+        Update: {
+          color_class?: string
+          created_at?: string
+          display_name?: string
+          icon_name?: string
+          id?: string
+          rank_key?: string
+          sort_order?: number
+          updated_at?: string
+          xp_threshold?: number
+        }
+        Relationships: []
+      }
       special_voucher_redemptions: {
         Row: {
           id: string
@@ -691,7 +727,12 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      owner_set_credits: {
+        Args: { _new_credits: number; _target_user_id: string }
+        Returns: boolean
+      }
       redeem_special_voucher: { Args: { _code: string }; Returns: Json }
       redeem_voucher: { Args: { _code: string }; Returns: number }
       spend_credits: {
@@ -700,7 +741,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "staff" | "user"
+      app_role: "admin" | "moderator" | "staff" | "user" | "owner"
       game_category:
         | "arcade"
         | "puzzle"
@@ -846,7 +887,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "staff", "user"],
+      app_role: ["admin", "moderator", "staff", "user", "owner"],
       game_category: [
         "arcade",
         "puzzle",

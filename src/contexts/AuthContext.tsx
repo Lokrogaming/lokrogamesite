@@ -19,6 +19,7 @@ interface AuthContextType {
   profile: Profile | null;
   isLoading: boolean;
   isStaff: boolean;
+  isOwner: boolean;
   signUp: (email: string, password: string, username?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -34,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isStaff, setIsStaff] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -54,8 +56,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       .eq('user_id', userId);
     
     if (data) {
-      const staffRoles = ['staff', 'admin', 'moderator'];
+      const staffRoles = ['staff', 'admin', 'moderator', 'owner'];
       setIsStaff(data.some(r => staffRoles.includes(r.role)));
+      setIsOwner(data.some(r => r.role === 'owner'));
     }
   };
 
@@ -73,6 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setProfile(null);
           setIsStaff(false);
+          setIsOwner(false);
         }
       }
     );
@@ -114,6 +118,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
     setProfile(null);
     setIsStaff(false);
+    setIsOwner(false);
   };
 
   const refreshProfile = async () => {
@@ -171,6 +176,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       profile,
       isLoading,
       isStaff,
+      isOwner,
       signUp,
       signIn,
       signOut,
