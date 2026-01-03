@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { User, Gamepad2, Link, Calendar, Shield, Zap } from 'lucide-react';
 import { RankBadge } from './RankBadge';
 
-type UserRank = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master' | 'legend';
+type UserRank = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master' | 'queen' | 'king' | 'legend';
 
 const rankThresholds: { rank: UserRank; minXp: number }[] = [
   { rank: 'bronze', minXp: 0 },
@@ -16,7 +16,9 @@ const rankThresholds: { rank: UserRank; minXp: number }[] = [
   { rank: 'platinum', minXp: 5000 },
   { rank: 'diamond', minXp: 10000 },
   { rank: 'master', minXp: 25000 },
-  { rank: 'legend', minXp: 50000 },
+  { rank: 'queen', minXp: 50000 },
+  { rank: 'king', minXp: 75000 },
+  { rank: 'legend', minXp: 100000 },
 ];
 
 interface UserProfile {

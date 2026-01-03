@@ -2,23 +2,40 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Shield, FileText, Users, MessageSquare, ArrowLeft } from 'lucide-react';
+import { Shield, FileText, Users, MessageSquare, ArrowLeft, Crown, Bot } from 'lucide-react';
 import GameSubmissionsTab from '@/components/staff/GameSubmissionsTab';
 import UserManagementTab from '@/components/staff/UserManagementTab';
 import StaffChatTab from '@/components/staff/StaffChatTab';
+import { AdminVoucherSystem } from '@/components/AdminVoucherSystem';
+import { AutomodLogsTab } from '@/components/staff/AutomodLogsTab';
+import { supabase } from '@/integrations/supabase/client';
 
 const StaffPanel = () => {
   const { user, isStaff, isLoading } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('submissions');
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!isLoading && (!user || !isStaff)) {
       navigate('/');
     }
   }, [user, isStaff, isLoading, navigate]);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      setIsAdmin(!!data);
+    };
+    checkAdmin();
+  }, [user]);
 
   if (isLoading) {
     return (
@@ -57,7 +74,7 @@ const StaffPanel = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full grid grid-cols-3 mb-8 bg-card border border-border">
+          <TabsList className={`w-full grid mb-8 bg-card border border-border ${isAdmin ? 'grid-cols-5' : 'grid-cols-4'}`}>
             <TabsTrigger 
               value="submissions" 
               className="font-display data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -73,12 +90,28 @@ const StaffPanel = () => {
               Users
             </TabsTrigger>
             <TabsTrigger 
+              value="automod" 
+              className="font-display data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <Bot className="w-4 h-4 mr-2" />
+              Automod
+            </TabsTrigger>
+            <TabsTrigger 
               value="chat" 
               className="font-display data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
             >
               <MessageSquare className="w-4 h-4 mr-2" />
               Staff Chat
             </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger 
+                value="vouchers" 
+                className="font-display data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Crown className="w-4 h-4 mr-2" />
+                Vouchers
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="submissions">
@@ -89,9 +122,19 @@ const StaffPanel = () => {
             <UserManagementTab />
           </TabsContent>
 
+          <TabsContent value="automod">
+            <AutomodLogsTab />
+          </TabsContent>
+
           <TabsContent value="chat">
             <StaffChatTab />
           </TabsContent>
+
+          {isAdmin && (
+            <TabsContent value="vouchers">
+              <AdminVoucherSystem />
+            </TabsContent>
+          )}
         </Tabs>
       </main>
     </div>
