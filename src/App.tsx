@@ -10,6 +10,7 @@ import Settings from "./pages/Settings";
 import Challenges from "./pages/Challenges";
 import UploadGame from "./pages/UploadGame";
 import StaffPanel from "./pages/StaffPanel";
+import OwnerPanel from "./pages/OwnerPanel";
 import NotFound from "./pages/NotFound";
 import { Snake } from "./components/games/Snake";
 import { TicTacToe } from "./components/games/TicTacToe";
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/space-invaders" element={<SpaceInvaders />} />
             <Route path="/solitaire" element={<Solitaire />} />
             <Route path="/staff" element={<StaffPanel />} />
+            <Route path="/owner" element={<OwnerPanel />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
