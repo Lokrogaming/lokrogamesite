@@ -12,20 +12,13 @@ export default {
         "2xl": "1400px",
       },
     },
-    theme: {
-  extend: {
-    colors: {
-      gold: '#FFD700',
-    },
-  },
-}
-
     extend: {
       fontFamily: {
         display: ['Orbitron', 'sans-serif'],
         body: ['Rajdhani', 'sans-serif'],
       },
       colors: {
+        gold: '#FFD700',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
