@@ -610,12 +610,75 @@ export type Database = {
         }
         Relationships: []
       }
+      voucher_redemption_attempts: {
+        Row: {
+          attempt_time: string
+          code_attempted: string
+          id: string
+          success: boolean
+          user_id: string
+        }
+        Insert: {
+          attempt_time?: string
+          code_attempted: string
+          id?: string
+          success?: boolean
+          user_id: string
+        }
+        Update: {
+          attempt_time?: string
+          code_attempted?: string
+          id?: string
+          success?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          description: string | null
+          favorite_game: string | null
+          rank: Database["public"]["Enums"]["user_rank"] | null
+          social_link: string | null
+          tag: string | null
+          user_id: string | null
+          username: string | null
+          xp: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          favorite_game?: string | null
+          rank?: Database["public"]["Enums"]["user_rank"] | null
+          social_link?: string | null
+          tag?: string | null
+          user_id?: string | null
+          username?: string | null
+          xp?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          favorite_game?: string | null
+          rank?: Database["public"]["Enums"]["user_rank"] | null
+          social_link?: string | null
+          tag?: string | null
+          user_id?: string | null
+          username?: string | null
+          xp?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_chat_xp: { Args: never; Returns: number }
+      cleanup_old_voucher_attempts: { Args: never; Returns: undefined }
       create_voucher: { Args: { _amount: number }; Returns: string }
       earn_credits: {
         Args: { _amount: number; _reason?: string }

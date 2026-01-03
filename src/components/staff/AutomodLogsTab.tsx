@@ -67,7 +67,7 @@ export const AutomodLogsTab = () => {
     if (profiles[userId]) return;
     
     const { data } = await supabase
-      .from('profiles')
+      .from('public_profiles')
       .select('username')
       .eq('user_id', userId)
       .maybeSingle();

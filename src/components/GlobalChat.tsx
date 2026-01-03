@@ -124,7 +124,7 @@ const GlobalChat = () => {
     if (uniqueIds.length === 0) return;
 
     const { data } = await supabase
-      .from('profiles')
+      .from('public_profiles')
       .select('user_id, username, avatar_url')
       .in('user_id', uniqueIds);
 
