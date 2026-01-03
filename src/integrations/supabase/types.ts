@@ -53,6 +53,44 @@ export type Database = {
         }
         Relationships: []
       }
+      automod_logs: {
+        Row: {
+          action_taken: string
+          created_at: string | null
+          flagged_reason: string
+          id: string
+          message_id: string | null
+          original_content: string
+          user_id: string
+        }
+        Insert: {
+          action_taken: string
+          created_at?: string | null
+          flagged_reason: string
+          id?: string
+          message_id?: string | null
+          original_content: string
+          user_id: string
+        }
+        Update: {
+          action_taken?: string
+          created_at?: string | null
+          flagged_reason?: string
+          id?: string
+          message_id?: string | null
+          original_content?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automod_logs_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "global_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_vouchers: {
         Row: {
           amount: number
@@ -391,6 +429,77 @@ export type Database = {
         }
         Relationships: []
       }
+      special_voucher_redemptions: {
+        Row: {
+          id: string
+          redeemed_at: string | null
+          user_id: string
+          voucher_id: string
+        }
+        Insert: {
+          id?: string
+          redeemed_at?: string | null
+          user_id: string
+          voucher_id: string
+        }
+        Update: {
+          id?: string
+          redeemed_at?: string | null
+          user_id?: string
+          voucher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "special_voucher_redemptions_voucher_id_fkey"
+            columns: ["voucher_id"]
+            isOneToOne: false
+            referencedRelation: "special_vouchers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      special_vouchers: {
+        Row: {
+          code: string
+          created_at: string | null
+          creator_id: string
+          credits_amount: number
+          current_uses: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          one_use_per_user: boolean
+          xp_amount: number
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          creator_id: string
+          credits_amount?: number
+          current_uses?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          one_use_per_user?: boolean
+          xp_amount?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          creator_id?: string
+          credits_amount?: number
+          current_uses?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          one_use_per_user?: boolean
+          xp_amount?: number
+        }
+        Relationships: []
+      }
       staff_messages: {
         Row: {
           content: string
@@ -520,6 +629,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      redeem_special_voucher: { Args: { _code: string }; Returns: Json }
       redeem_voucher: { Args: { _code: string }; Returns: number }
       spend_credits: {
         Args: { _amount: number; _reason?: string }
@@ -544,8 +654,6 @@ export type Database = {
         | "gold"
         | "platinum"
         | "diamond"
-        | "queen"
-        | "king"
         | "master"
         | "legend"
     }
@@ -694,8 +802,6 @@ export const Constants = {
         "platinum",
         "diamond",
         "master",
-        "queen",
-        "king",
         "legend",
       ],
     },

@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Gift, Ticket, Loader2, Copy, Check } from 'lucide-react';
+import { Gift, Ticket, Loader2, Copy, Check, Sparkles } from 'lucide-react';
 
 export const VoucherSystem = () => {
   const { profile, refreshProfile } = useAuth();
@@ -85,16 +85,41 @@ export const VoucherSystem = () => {
     }
 
     setRedeeming(true);
+    
+    // Try regular voucher first
     try {
       const { data, error } = await supabase.rpc('redeem_voucher', { _code: redeemCode.trim() });
+      
+      if (!error && data) {
+        await refreshProfile();
+        toast({
+          title: 'Voucher Redeemed!',
+          description: `+${data} credits added to your account`
+        });
+        setRedeemCode('');
+        setRedeeming(false);
+        return;
+      }
+    } catch {
+      // Try special voucher
+    }
+
+    // Try special voucher
+    try {
+      const { data, error } = await supabase.rpc('redeem_special_voucher', { _code: redeemCode.trim() });
       
       if (error) throw error;
       
       await refreshProfile();
       
+      const result = data as { credits: number; xp: number };
+      const rewards: string[] = [];
+      if (result.credits > 0) rewards.push(`+${result.credits} credits`);
+      if (result.xp > 0) rewards.push(`+${result.xp} XP`);
+      
       toast({
-        title: 'Voucher Redeemed!',
-        description: `+${data} credits added to your account`
+        title: 'Special Voucher Redeemed!',
+        description: rewards.join(', ') || 'Voucher redeemed successfully'
       });
       
       setRedeemCode('');
@@ -214,8 +239,11 @@ export const VoucherSystem = () => {
                 onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
                 placeholder="Enter voucher code"
                 className="font-mono tracking-wider"
-                maxLength={8}
               />
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                Works with regular and special vouchers
+              </p>
             </div>
             
             <Button 

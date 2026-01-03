@@ -1,1 +1,4 @@
 project_id = "xheigkblbvfogcosflmv"
+
+[functions.automod]
+verify_jwt = false

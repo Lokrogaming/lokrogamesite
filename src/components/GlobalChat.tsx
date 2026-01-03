@@ -298,14 +298,50 @@ const GlobalChat = () => {
     if (!newMessage.trim() || !user) return;
 
     setSending(true);
+    const messageContent = newMessage.trim();
 
-    const { error } = await supabase
+    // First, check with AI automod
+    try {
+      const automodResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/automod`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            message: messageContent,
+            userId: user.id
+          })
+        }
+      );
+
+      const automodResult = await automodResponse.json();
+
+      if (!automodResult.allowed) {
+        toast({
+          title: 'Message Not Allowed',
+          description: automodResult.reason || 'Your message was flagged by our moderation system.',
+          variant: 'destructive'
+        });
+        setSending(false);
+        return;
+      }
+    } catch (error) {
+      console.error('Automod check failed:', error);
+      // Continue if automod fails to not block chat
+    }
+
+    const { data: insertedMessage, error } = await supabase
       .from('global_messages')
       .insert({
         user_id: user.id,
-        content: newMessage.trim(),
+        content: messageContent,
         reply_to_id: replyTo?.id || null
-      });
+      })
+      .select('id')
+      .single();
 
     if (error) {
       toast({
