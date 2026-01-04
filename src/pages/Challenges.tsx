@@ -3,20 +3,19 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useChallenges } from '@/hooks/useChallenges';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Trophy, Coins, Target, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, Trophy, Coins, Target, CheckCircle2, Clock, Gift } from 'lucide-react';
 
 const Challenges = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  const { challenges, loading, completedCount } = useChallenges();
+  const { challenges, loading, completedCount, maxChallenges } = useChallenges();
 
   if (!user) {
     navigate('/auth');
     return null;
   }
 
-  const maxChallenges = 3;
-  const progress = (completedCount / maxChallenges) * 100;
+  const progress = maxChallenges > 0 ? (completedCount / maxChallenges) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -100,9 +99,19 @@ const Challenges = () => {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-neon-orange/20">
-                    <Coins className="h-4 w-4 text-neon-orange" />
-                    <span className="font-display text-sm text-neon-orange">+{challenge.reward_credits}</span>
+                  <div className="flex flex-col items-end gap-1">
+                    <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-neon-orange/20">
+                      <Coins className="h-4 w-4 text-neon-orange" />
+                      <span className="font-display text-sm text-neon-orange">+{challenge.reward_credits}</span>
+                    </div>
+                    {challenge.reward_item_name && (
+                      <div className="flex items-center gap-1 px-3 py-1 rounded-full bg-neon-cyan/20">
+                        <Gift className="h-4 w-4 text-neon-cyan" />
+                        <span className="font-display text-xs text-neon-cyan">
+                          +{challenge.reward_item_quantity || 1}x {challenge.reward_item_name}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

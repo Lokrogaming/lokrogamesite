@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
-import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload, Shield, MessageCircle, Crown } from "lucide-react";
+import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload, Shield, MessageCircle, Crown, Package } from "lucide-react";
 import GlobalChat from "@/components/GlobalChat";
 import { Ranklist } from "@/components/Ranklist";
 
@@ -96,6 +96,12 @@ const Index = () => {
                 <Button variant="outline" size="sm" className="border-neon-purple/50 text-neon-purple hover:bg-neon-purple/10">
                   <Upload className="h-4 w-4 mr-2" />
                   Submit a Game
+                </Button>
+              </Link>
+              <Link to="/inventory">
+                <Button variant="outline" size="sm" className="border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10">
+                  <Package className="h-4 w-4 mr-2" />
+                  Inventory
                 </Button>
               </Link>
               <Link to="/settings">

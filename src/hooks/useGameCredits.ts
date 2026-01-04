@@ -19,8 +19,8 @@ export const useGameCredits = ({ gameSlug, winScore }: UseGameCreditsOptions) =>
 
   const payToPlay = useCallback(async (): Promise<boolean> => {
     if (!user) {
-      // Allow non-logged in users to play for free
-      return true;
+      // Require login to play
+      return false;
     }
     
     const paid = await spendCredits(gameSlug);
@@ -53,7 +53,7 @@ export const useGameCredits = ({ gameSlug, winScore }: UseGameCreditsOptions) =>
     hasPaid,
     hasWon,
     user,
-    canPlay: user ? canAffordGame(gameSlug) : true,
+    canPlay: user ? canAffordGame(gameSlug) : false,
     payToPlay,
     checkWin,
     resetGameState
