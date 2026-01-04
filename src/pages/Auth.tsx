@@ -225,7 +225,7 @@ const Auth = () => {
         } else {
           toast({
             title: "Account Created!",
-            description: "Welcome to Arcade Zone!"
+            description: "Welcome to LokroGames!"
           });
           navigate('/');
         }
