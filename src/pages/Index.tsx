@@ -43,8 +43,8 @@ const Index = () => {
         <div className="container relative py-8">
           <div className="flex items-center justify-between mb-6">
             <h1 className="font-display text-3xl md:text-5xl font-bold tracking-wider">
-              <span className="text-gradient">ARCADE</span>
-              <span className="text-foreground"> ZONE</span>
+              <span className="text-gradient">LOKRO</span>
+              <span className="text-foreground">GAMES</span>
             </h1>
             
             <div className="flex items-center gap-3">
