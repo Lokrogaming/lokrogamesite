@@ -11,6 +11,7 @@ import Challenges from "./pages/Challenges";
 import UploadGame from "./pages/UploadGame";
 import StaffPanel from "./pages/StaffPanel";
 import OwnerPanel from "./pages/OwnerPanel";
+import Inventory from "./pages/Inventory";
 import NotFound from "./pages/NotFound";
 import { Snake } from "./components/games/Snake";
 import { TicTacToe } from "./components/games/TicTacToe";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/challenges" element={<Challenges />} />
             <Route path="/upload-game" element={<UploadGame />} />
+            <Route path="/inventory" element={<Inventory />} />
             <Route path="/snake" element={<Snake />} />
             <Route path="/tic-tac-toe" element={<TicTacToe />} />
             <Route path="/memory" element={<MemoryMatch />} />

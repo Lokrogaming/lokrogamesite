@@ -26,6 +26,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [birthday, setBirthday] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -197,7 +198,16 @@ const Auth = () => {
           navigate('/');
         }
       } else {
-        const { error } = await signUp(email, password, username);
+        if (!birthday) {
+          toast({
+            title: "Birthday Required",
+            description: "Please enter your birthday to create an account",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
+        const { error } = await signUp(email, password, username, birthday);
         if (error) {
           if (error.message.includes('already registered')) {
             toast({
@@ -522,17 +532,31 @@ const Auth = () => {
             <TabsContent value="email">
               <form onSubmit={handleEmailSubmit} className="space-y-4">
                 {authView === 'signup' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <Input
-                      id="username"
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Choose a username"
-                      className="bg-background/50"
-                    />
-                  </div>
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Username</Label>
+                      <Input
+                        id="username"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Choose a username"
+                        className="bg-background/50"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="birthday">Birthday <span className="text-destructive">*</span></Label>
+                      <Input
+                        id="birthday"
+                        type="date"
+                        value={birthday}
+                        onChange={(e) => setBirthday(e.target.value)}
+                        className="bg-background/50"
+                        max={new Date().toISOString().split('T')[0]}
+                      />
+                      <p className="text-xs text-muted-foreground">Cannot be changed after registration. You'll receive 1000 credits on your birthday!</p>
+                    </div>
+                  </>
                 )}
                 
                 <div className="space-y-2">

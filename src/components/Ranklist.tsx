@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { Trophy, Medal, User } from 'lucide-react';
 
 interface RanklistUser {
@@ -24,7 +24,7 @@ export const Ranklist = () => {
         .from('public_profiles')
         .select('user_id, username, avatar_url, xp, rank')
         .order('xp', { ascending: false })
-        .limit(50);
+        .limit(5);
 
       if (!error && data) {
         setUsers(data);
@@ -76,39 +76,37 @@ export const Ranklist = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-neon-orange" />
-          XP Ranklist
+          Top 5 Players
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px]">
-          <div className="space-y-2">
-            {users.map((user, index) => (
-              <div
-                key={user.user_id}
-                className={`flex items-center gap-3 p-3 rounded-lg border ${getPositionStyle(index)}`}
-              >
-                <div className="flex items-center justify-center w-8">
-                  {getPositionIcon(index)}
-                </div>
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={user.avatar_url || ''} />
-                  <AvatarFallback>
-                    <User className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{user.username || 'Unknown'}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {user.xp.toLocaleString()} XP
-                  </div>
-                </div>
-                <Badge variant="outline" className="capitalize shrink-0">
-                  {user.rank || 'bronze'}
-                </Badge>
+        <div className="space-y-2">
+          {users.map((user, index) => (
+            <div
+              key={user.user_id}
+              className={`flex items-center gap-3 p-3 rounded-lg border ${getPositionStyle(index)}`}
+            >
+              <div className="flex items-center justify-center w-8">
+                {getPositionIcon(index)}
               </div>
-            ))}
-          </div>
-        </ScrollArea>
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={user.avatar_url || ''} />
+                <AvatarFallback>
+                  <User className="h-5 w-5" />
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{user.username || 'Unknown'}</div>
+                <div className="text-sm text-muted-foreground">
+                  {user.xp.toLocaleString()} XP
+                </div>
+              </div>
+              <Badge variant="outline" className="capitalize shrink-0">
+                {user.rank || 'bronze'}
+              </Badge>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      active_boosters: {
+        Row: {
+          activated_at: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          item_type_id: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          item_type_id: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          item_type_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "active_boosters_item_type_id_fkey"
+            columns: ["item_type_id"]
+            isOneToOne: false
+            referencedRelation: "item_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_conversations: {
         Row: {
           created_at: string
@@ -132,6 +167,8 @@ export type Database = {
           game_id: string | null
           id: string
           reward_credits: number
+          reward_item_id: string | null
+          reward_item_quantity: number | null
           target_score: number | null
           title: string
         }
@@ -142,6 +179,8 @@ export type Database = {
           game_id?: string | null
           id?: string
           reward_credits?: number
+          reward_item_id?: string | null
+          reward_item_quantity?: number | null
           target_score?: number | null
           title: string
         }
@@ -152,6 +191,8 @@ export type Database = {
           game_id?: string | null
           id?: string
           reward_credits?: number
+          reward_item_id?: string | null
+          reward_item_quantity?: number | null
           target_score?: number | null
           title?: string
         }
@@ -161,6 +202,13 @@ export type Database = {
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_challenges_reward_item_id_fkey"
+            columns: ["reward_item_id"]
+            isOneToOne: false
+            referencedRelation: "item_types"
             referencedColumns: ["id"]
           },
         ]
@@ -252,6 +300,42 @@ export type Database = {
         }
         Relationships: []
       }
+      gift_codes: {
+        Row: {
+          code: string
+          created_at: string
+          creator_id: string
+          id: string
+          is_redeemed: boolean | null
+          items: Json
+          message: string | null
+          redeemed_at: string | null
+          redeemed_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          creator_id: string
+          id?: string
+          is_redeemed?: boolean | null
+          items?: Json
+          message?: string | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          creator_id?: string
+          id?: string
+          is_redeemed?: boolean | null
+          items?: Json
+          message?: string | null
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+        }
+        Relationships: []
+      }
       global_messages: {
         Row: {
           content: string
@@ -286,6 +370,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      item_types: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          effect_type: string | null
+          effect_value: number | null
+          icon: string | null
+          id: string
+          is_tradeable: boolean | null
+          name: string
+          rarity: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          effect_type?: string | null
+          effect_value?: number | null
+          icon?: string | null
+          id?: string
+          is_tradeable?: boolean | null
+          name: string
+          rarity?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          effect_type?: string | null
+          effect_value?: number | null
+          icon?: string | null
+          id?: string
+          is_tradeable?: boolean | null
+          name?: string
+          rarity?: string | null
+        }
+        Relationships: []
       }
       leaderboards: {
         Row: {
@@ -368,6 +494,7 @@ export type Database = {
           avatar_url: string | null
           ban_expires_at: string | null
           ban_reason: string | null
+          birthday: string | null
           created_at: string
           credits: number
           daily_challenges_completed: number
@@ -375,6 +502,7 @@ export type Database = {
           favorite_game: string | null
           id: string
           is_banned: boolean
+          last_birthday_reward: string | null
           last_challenge_reset: string | null
           last_credit_refill: string | null
           rank: Database["public"]["Enums"]["user_rank"] | null
@@ -389,6 +517,7 @@ export type Database = {
           avatar_url?: string | null
           ban_expires_at?: string | null
           ban_reason?: string | null
+          birthday?: string | null
           created_at?: string
           credits?: number
           daily_challenges_completed?: number
@@ -396,6 +525,7 @@ export type Database = {
           favorite_game?: string | null
           id?: string
           is_banned?: boolean
+          last_birthday_reward?: string | null
           last_challenge_reset?: string | null
           last_credit_refill?: string | null
           rank?: Database["public"]["Enums"]["user_rank"] | null
@@ -410,6 +540,7 @@ export type Database = {
           avatar_url?: string | null
           ban_expires_at?: string | null
           ban_reason?: string | null
+          birthday?: string | null
           created_at?: string
           credits?: number
           daily_challenges_completed?: number
@@ -417,6 +548,7 @@ export type Database = {
           favorite_game?: string | null
           id?: string
           is_banned?: boolean
+          last_birthday_reward?: string | null
           last_challenge_reset?: string | null
           last_credit_refill?: string | null
           rank?: Database["public"]["Enums"]["user_rank"] | null
@@ -592,6 +724,41 @@ export type Database = {
           },
         ]
       }
+      user_inventory: {
+        Row: {
+          created_at: string
+          id: string
+          item_type_id: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_type_id: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_type_id?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_inventory_item_type_id_fkey"
+            columns: ["item_type_id"]
+            isOneToOne: false
+            referencedRelation: "item_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_moderation_logs: {
         Row: {
           action: Database["public"]["Enums"]["moderation_action"]
@@ -713,8 +880,18 @@ export type Database = {
       }
     }
     Functions: {
+      activate_booster: { Args: { _item_type_id: string }; Returns: boolean }
       add_chat_xp: { Args: never; Returns: number }
+      award_item: {
+        Args: { _item_type_id: string; _quantity?: number; _user_id: string }
+        Returns: boolean
+      }
+      claim_birthday_reward: { Args: never; Returns: boolean }
       cleanup_old_voucher_attempts: { Args: never; Returns: undefined }
+      create_gift_code: {
+        Args: { _items: Json; _message?: string }
+        Returns: string
+      }
       create_voucher: { Args: { _amount: number }; Returns: string }
       earn_credits: {
         Args: { _amount: number; _reason?: string }
@@ -733,6 +910,7 @@ export type Database = {
         Args: { _new_credits: number; _target_user_id: string }
         Returns: boolean
       }
+      redeem_gift_code: { Args: { _code: string }; Returns: Json }
       redeem_special_voucher: { Args: { _code: string }; Returns: Json }
       redeem_voucher: { Args: { _code: string }; Returns: number }
       spend_credits: {
