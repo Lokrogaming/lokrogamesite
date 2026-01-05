@@ -12,6 +12,7 @@ import UploadGame from "./pages/UploadGame";
 import StaffPanel from "./pages/StaffPanel";
 import OwnerPanel from "./pages/OwnerPanel";
 import Inventory from "./pages/Inventory";
+import Messages from "./pages/Messages";
 import ApiHome from "./pages/ApiHome";
 import ApiDocs from "./pages/ApiDocs";
 import NotFound from "./pages/NotFound";
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/challenges" element={<Challenges />} />
             <Route path="/upload-game" element={<UploadGame />} />
             <Route path="/inventory" element={<Inventory />} />
+            <Route path="/messages" element={<Messages />} />
             <Route path="/snake" element={<Snake />} />
             <Route path="/tic-tac-toe" element={<TicTacToe />} />
             <Route path="/memory" element={<MemoryMatch />} />

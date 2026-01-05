@@ -213,6 +213,63 @@ export type Database = {
           },
         ]
       }
+      direct_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_deleted: boolean
+          is_read: boolean
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_deleted?: boolean
+          is_read?: boolean
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_deleted?: boolean
+          is_read?: boolean
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       game_submissions: {
         Row: {
           category: Database["public"]["Enums"]["game_category"]
@@ -445,6 +502,33 @@ export type Database = {
           },
         ]
       }
+      message_requests: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          receiver_id: string
+          sender_id: string
+          status: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          receiver_id: string
+          sender_id: string
+          status?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       multiplayer_sessions: {
         Row: {
           created_at: string
@@ -491,6 +575,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address_number: string | null
           avatar_url: string | null
           ban_expires_at: string | null
           ban_reason: string | null
@@ -514,6 +599,7 @@ export type Database = {
           xp: number
         }
         Insert: {
+          address_number?: string | null
           avatar_url?: string | null
           ban_expires_at?: string | null
           ban_reason?: string | null
@@ -537,6 +623,7 @@ export type Database = {
           xp?: number
         }
         Update: {
+          address_number?: string | null
           avatar_url?: string | null
           ban_expires_at?: string | null
           ban_reason?: string | null
@@ -882,6 +969,10 @@ export type Database = {
     Functions: {
       activate_booster: { Args: { _item_type_id: string }; Returns: boolean }
       add_chat_xp: { Args: never; Returns: number }
+      are_friends: {
+        Args: { _user1: string; _user2: string }
+        Returns: boolean
+      }
       award_item: {
         Args: { _item_type_id: string; _quantity?: number; _user_id: string }
         Returns: boolean
@@ -895,6 +986,11 @@ export type Database = {
       create_voucher: { Args: { _amount: number }; Returns: string }
       earn_credits: {
         Args: { _amount: number; _reason?: string }
+        Returns: boolean
+      }
+      generate_address_number: { Args: never; Returns: string }
+      has_message_access: {
+        Args: { _receiver: string; _sender: string }
         Returns: boolean
       }
       has_role: {
