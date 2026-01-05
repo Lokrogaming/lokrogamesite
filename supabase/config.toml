@@ -2,3 +2,6 @@ project_id = "xheigkblbvfogcosflmv"
 
 [functions.automod]
 verify_jwt = false
+
+[functions.api]
+verify_jwt = false
