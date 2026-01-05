@@ -12,6 +12,8 @@ import UploadGame from "./pages/UploadGame";
 import StaffPanel from "./pages/StaffPanel";
 import OwnerPanel from "./pages/OwnerPanel";
 import Inventory from "./pages/Inventory";
+import ApiHome from "./pages/ApiHome";
+import ApiDocs from "./pages/ApiDocs";
 import NotFound from "./pages/NotFound";
 import { Snake } from "./components/games/Snake";
 import { TicTacToe } from "./components/games/TicTacToe";
@@ -60,6 +62,8 @@ const App = () => (
             <Route path="/solitaire" element={<Solitaire />} />
             <Route path="/staff" element={<StaffPanel />} />
             <Route path="/owner" element={<OwnerPanel />} />
+            <Route path="/api" element={<ApiHome />} />
+            <Route path="/api/docs" element={<ApiDocs />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
