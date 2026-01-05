@@ -104,6 +104,12 @@ const Index = () => {
                   Inventory
                 </Button>
               </Link>
+              <Link to="/messages">
+                <Button variant="outline" size="sm" className="border-neon-green/50 text-neon-green hover:bg-neon-green/10">
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Messages
+                </Button>
+              </Link>
               <Link to="/settings">
                 <Button variant="outline" size="sm">
                   <Settings className="h-4 w-4 mr-2" />

@@ -12,11 +12,13 @@ serve(async (req) => {
   }
 
   try {
-    const { message, userId, messageId } = await req.json();
+    const { message, content: msgContent, userId, messageId, type } = await req.json();
     
-    if (!message || !userId) {
+    const textToModerate = message || msgContent;
+    
+    if (!textToModerate || !userId) {
       return new Response(
-        JSON.stringify({ error: 'Message and userId are required' }),
+        JSON.stringify({ error: 'Message/content and userId are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -60,7 +62,7 @@ Respond ONLY with a JSON object:
 
 Be reasonable - allow casual conversation, mild language, and gaming banter. Only flag truly problematic content.`
           },
-          { role: "user", content: `Moderate this chat message: "${message}"` }
+          { role: "user", content: `Moderate this ${type === 'dm' ? 'direct message' : 'chat message'}: "${textToModerate}"` }
         ],
       }),
     });
@@ -75,43 +77,51 @@ Be reasonable - allow casual conversation, mild language, and gaming banter. Onl
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || '';
+    const aiContent = data.choices?.[0]?.message?.content || '';
     
     // Parse AI response
     let moderationResult;
     try {
       // Extract JSON from response (handle markdown code blocks)
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         moderationResult = JSON.parse(jsonMatch[0]);
       } else {
         moderationResult = { allowed: true, reason: 'Could not parse response' };
       }
     } catch (e) {
-      console.error("Failed to parse AI response:", content);
+      console.error("Failed to parse AI response:", aiContent);
       moderationResult = { allowed: true, reason: 'Parse error' };
     }
 
     // If message is not allowed, log it
-    if (!moderationResult.allowed && messageId) {
+    if (!moderationResult.allowed) {
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const supabase = createClient(supabaseUrl, supabaseKey);
 
       await supabase.from('automod_logs').insert({
-        message_id: messageId,
+        message_id: messageId || null,
         user_id: userId,
-        original_content: message,
+        original_content: textToModerate,
         flagged_reason: moderationResult.reason,
         action_taken: moderationResult.severity === 'high' ? 'blocked' : 'warned'
       });
 
-      // For high severity, delete the message
-      if (moderationResult.severity === 'high') {
+      // For high severity in global chat, delete the message
+      if (moderationResult.severity === 'high' && messageId && type !== 'dm') {
         await supabase
           .from('global_messages')
           .update({ is_deleted: true })
           .eq('id', messageId);
+      }
+
+      // For DMs, return blocked status
+      if (type === 'dm' && moderationResult.severity === 'high') {
+        return new Response(
+          JSON.stringify({ blocked: true, reason: moderationResult.reason }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
     }
 

@@ -11,6 +11,7 @@ interface Profile {
   last_credit_refill: string | null;
   daily_challenges_completed: number;
   last_challenge_reset: string | null;
+  address_number: string | null;
 }
 
 interface AuthContextType {
