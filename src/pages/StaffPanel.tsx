@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Shield, FileText, Users, MessageSquare, ArrowLeft, Crown, Bot } from 'lucide-react';
+import { Shield, FileText, Users, MessageSquare, ArrowLeft, Crown, Bot, Ticket } from 'lucide-react';
 import GameSubmissionsTab from '@/components/staff/GameSubmissionsTab';
 import UserManagementTab from '@/components/staff/UserManagementTab';
 import StaffChatTab from '@/components/staff/StaffChatTab';
 import { AdminVoucherSystem } from '@/components/AdminVoucherSystem';
 import { AutomodLogsTab } from '@/components/staff/AutomodLogsTab';
+import { SupportTicketsTab } from '@/components/staff/SupportTicketsTab';
 import { supabase } from '@/integrations/supabase/client';
 
 const StaffPanel = () => {
@@ -74,7 +75,7 @@ const StaffPanel = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className={`w-full grid mb-8 bg-card border border-border ${isAdmin ? 'grid-cols-5' : 'grid-cols-4'}`}>
+          <TabsList className={`w-full grid mb-8 bg-card border border-border ${isAdmin ? 'grid-cols-6' : 'grid-cols-5'}`}>
             <TabsTrigger 
               value="submissions" 
               className="font-display data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -88,6 +89,13 @@ const StaffPanel = () => {
             >
               <Users className="w-4 h-4 mr-2" />
               Users
+            </TabsTrigger>
+            <TabsTrigger 
+              value="support" 
+              className="font-display data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              <Ticket className="w-4 h-4 mr-2" />
+              Support
             </TabsTrigger>
             <TabsTrigger 
               value="automod" 
@@ -120,6 +128,10 @@ const StaffPanel = () => {
 
           <TabsContent value="users">
             <UserManagementTab />
+          </TabsContent>
+
+          <TabsContent value="support">
+            <SupportTicketsTab />
           </TabsContent>
 
           <TabsContent value="automod">
