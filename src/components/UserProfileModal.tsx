@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
-import { User, Gamepad2, Link, Calendar, Shield, Zap } from 'lucide-react';
+import { User, Gamepad2, Link, Calendar, Shield, Zap, Share2, Check } from 'lucide-react';
 import { RankBadge } from './RankBadge';
-
+import { toast } from 'sonner';
 type UserRank = 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond' | 'master' | 'queen' | 'king' | 'legend';
 
 const rankThresholds: { rank: UserRank; minXp: number }[] = [
@@ -44,6 +45,20 @@ interface UserProfileModalProps {
 export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModalProps) => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const copyProfileLink = async () => {
+    if (!userId) return;
+    const profileUrl = `${window.location.origin}/profiles/${userId}`;
+    try {
+      await navigator.clipboard.writeText(profileUrl);
+      setCopied(true);
+      toast.success('Profile link copied!');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('Failed to copy link');
+    }
+  };
 
   useEffect(() => {
     if (userId && open) {
@@ -109,10 +124,15 @@ export const UserProfileModal = ({ userId, open, onOpenChange }: UserProfileModa
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+        <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle>User Profile</DialogTitle>
+          {profile && (
+            <Button variant="outline" size="sm" onClick={copyProfileLink} className="h-8">
+              {copied ? <Check className="h-4 w-4 mr-1" /> : <Share2 className="h-4 w-4 mr-1" />}
+              {copied ? 'Copied!' : 'Share'}
+            </Button>
+          )}
         </DialogHeader>
-        
         {loading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
