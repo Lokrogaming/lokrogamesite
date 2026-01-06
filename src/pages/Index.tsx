@@ -1,6 +1,8 @@
 import { GameCard } from "@/components/GameCard";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
 import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload, Shield, MessageCircle, Crown, Package } from "lucide-react";
@@ -32,6 +34,7 @@ const games = {
 
 const Index = () => {
   const { user, profile, signOut, isLoading, isStaff, isOwner } = useAuth();
+  const { totalUnread } = useUnreadMessages();
 
   return (
     <div className="min-h-screen bg-background">
@@ -105,9 +108,14 @@ const Index = () => {
                 </Button>
               </Link>
               <Link to="/messages">
-                <Button variant="outline" size="sm" className="border-neon-green/50 text-neon-green hover:bg-neon-green/10">
+                <Button variant="outline" size="sm" className="border-neon-green/50 text-neon-green hover:bg-neon-green/10 relative">
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Messages
+                  {totalUnread > 0 && (
+                    <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                      {totalUnread > 9 ? '9+' : totalUnread}
+                    </Badge>
+                  )}
                 </Button>
               </Link>
               <Link to="/settings">
