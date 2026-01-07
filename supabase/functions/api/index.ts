@@ -15,8 +15,16 @@ Deno.serve(async (req) => {
     const url = new URL(req.url)
     const pathParts = url.pathname.split('/').filter(Boolean)
     
-    // Check if this is a /v1/users request
-    if (pathParts.length >= 2 && pathParts[0] === 'v1' && pathParts[1] === 'users') {
+    console.log('Request path:', url.pathname)
+    console.log('Path parts:', pathParts)
+    
+    // Check if this is a /v1/users request (path may include 'api' prefix from edge function name)
+    // Handle both /api/v1/users and /v1/users
+    const isUsersEndpoint = 
+      (pathParts.length >= 2 && pathParts[0] === 'v1' && pathParts[1] === 'users') ||
+      (pathParts.length >= 3 && pathParts[0] === 'api' && pathParts[1] === 'v1' && pathParts[2] === 'users')
+    
+    if (isUsersEndpoint) {
       const uid = url.searchParams.get('uid')
       const username = url.searchParams.get('username')
 
