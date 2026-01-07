@@ -17,6 +17,28 @@ const phoneSchema = z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number
 type AuthMethod = 'email' | 'phone';
 type AuthView = 'login' | 'signup' | 'forgot-password' | 'reset-password';
 
+// Generate username from email
+const generateUsernameFromEmail = (email: string): string => {
+  if (!email || !email.includes('@')) return '';
+  
+  // Get the part before @
+  let baseUsername = email.split('@')[0];
+  
+  // Remove special characters and replace with underscores
+  baseUsername = baseUsername.replace(/[^a-zA-Z0-9]/g, '_');
+  
+  // Remove consecutive underscores
+  baseUsername = baseUsername.replace(/_+/g, '_');
+  
+  // Remove leading/trailing underscores
+  baseUsername = baseUsername.replace(/^_|_$/g, '');
+  
+  // Add random suffix to make it unique
+  const randomSuffix = Math.floor(Math.random() * 1000);
+  
+  return `${baseUsername}${randomSuffix}`;
+};
+
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const [authView, setAuthView] = useState<AuthView>('login');
@@ -540,9 +562,10 @@ const Auth = () => {
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        placeholder="Choose a username"
+                        placeholder="Auto-generated from email"
                         className="bg-background/50"
                       />
+                      <p className="text-xs text-muted-foreground">Auto-generated from your email. You can change it.</p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="birthday">Birthday <span className="text-destructive">*</span></Label>
@@ -565,7 +588,17 @@ const Auth = () => {
                     id="email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      const newEmail = e.target.value;
+                      setEmail(newEmail);
+                      // Auto-generate username from email during signup if username is empty or was auto-generated
+                      if (authView === 'signup' && (!username || username.match(/^[a-zA-Z0-9_]+\d{1,3}$/))) {
+                        const generatedUsername = generateUsernameFromEmail(newEmail);
+                        if (generatedUsername) {
+                          setUsername(generatedUsername);
+                        }
+                      }
+                    }}
                     placeholder="your@email.com"
                     className="bg-background/50"
                   />
