@@ -4,12 +4,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Crown, Users, Medal, Coins, Gift } from 'lucide-react';
+import { ArrowLeft, Crown, Users, Medal, Coins, Gift, Link2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { RankManagementTab } from '@/components/owner/RankManagementTab';
 import { AccountManagementTab } from '@/components/owner/AccountManagementTab';
 import { CreditEditorTab } from '@/components/owner/CreditEditorTab';
 import { AdminVoucherSystem } from '@/components/AdminVoucherSystem';
+import { InviteManagementTab } from '@/components/owner/InviteManagementTab';
 
 const OwnerPanel = () => {
   const { user, isLoading } = useAuth();
@@ -87,7 +88,7 @@ const OwnerPanel = () => {
 
       <main className="container py-8">
         <Tabs defaultValue="ranks" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+          <TabsList className="grid w-full grid-cols-5 max-w-3xl">
             <TabsTrigger value="ranks" className="flex items-center gap-2">
               <Medal className="h-4 w-4" />
               Ranks
@@ -103,6 +104,10 @@ const OwnerPanel = () => {
             <TabsTrigger value="vouchers" className="flex items-center gap-2">
               <Gift className="h-4 w-4" />
               Vouchers
+            </TabsTrigger>
+            <TabsTrigger value="invites" className="flex items-center gap-2">
+              <Link2 className="h-4 w-4" />
+              Invites
             </TabsTrigger>
           </TabsList>
 
@@ -120,6 +125,10 @@ const OwnerPanel = () => {
 
           <TabsContent value="vouchers">
             <AdminVoucherSystem />
+          </TabsContent>
+
+          <TabsContent value="invites">
+            <InviteManagementTab />
           </TabsContent>
         </Tabs>
       </main>
