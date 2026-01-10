@@ -245,6 +245,21 @@ const Auth = () => {
             });
           }
         } else {
+          // Check for pending invite code and redeem it
+          const pendingInviteCode = sessionStorage.getItem('pendingInviteCode');
+          if (pendingInviteCode) {
+            sessionStorage.removeItem('pendingInviteCode');
+            // Small delay to ensure profile is created
+            setTimeout(async () => {
+              const { data } = await supabase.rpc('redeem_invite_code', { _code: pendingInviteCode });
+              if (data) {
+                toast({
+                  title: "Invite Bonus!",
+                  description: "You received 200 Credits and 500 XP from your invite!"
+                });
+              }
+            }, 1000);
+          }
           toast({
             title: "Account Created!",
             description: "Welcome to LokroGames!"

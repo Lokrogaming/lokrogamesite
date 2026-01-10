@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Camera, Loader2, User, Save, KeyRound, Eye, EyeOff, Gamepad2, Link, Tag } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { VoucherSystem } from '@/components/VoucherSystem';
+import { InviteLinkManager } from '@/components/InviteLinkManager';
 import { z } from 'zod';
 
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -531,6 +532,10 @@ const Settings = () => {
               </div>
             </>
           )}
+
+          {/* Invite Links Section */}
+          <Separator className="my-8" />
+          <InviteLinkManager />
 
           {/* Voucher System Section */}
           <Separator className="my-8" />

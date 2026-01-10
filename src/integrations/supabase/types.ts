@@ -428,6 +428,62 @@ export type Database = {
           },
         ]
       }
+      invite_links: {
+        Row: {
+          code: string
+          created_at: string
+          creator_id: string
+          id: string
+          is_active: boolean
+          uses_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          creator_id: string
+          id?: string
+          is_active?: boolean
+          uses_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          creator_id?: string
+          id?: string
+          is_active?: boolean
+          uses_count?: number
+        }
+        Relationships: []
+      }
+      invite_redemptions: {
+        Row: {
+          id: string
+          invite_link_id: string
+          invited_user_id: string
+          redeemed_at: string
+        }
+        Insert: {
+          id?: string
+          invite_link_id: string
+          invited_user_id: string
+          redeemed_at?: string
+        }
+        Update: {
+          id?: string
+          invite_link_id?: string
+          invited_user_id?: string
+          redeemed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invite_redemptions_invite_link_id_fkey"
+            columns: ["invite_link_id"]
+            isOneToOne: false
+            referencedRelation: "invite_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       item_types: {
         Row: {
           category: string
@@ -1075,12 +1131,14 @@ export type Database = {
         Args: { _items: Json; _message?: string }
         Returns: string
       }
+      create_invite_link: { Args: never; Returns: string }
       create_voucher: { Args: { _amount: number }; Returns: string }
       earn_credits: {
         Args: { _amount: number; _reason?: string }
         Returns: boolean
       }
       generate_address_number: { Args: never; Returns: string }
+      generate_invite_code: { Args: never; Returns: string }
       has_message_access: {
         Args: { _receiver: string; _sender: string }
         Returns: boolean
@@ -1099,6 +1157,7 @@ export type Database = {
         Returns: boolean
       }
       redeem_gift_code: { Args: { _code: string }; Returns: Json }
+      redeem_invite_code: { Args: { _code: string }; Returns: boolean }
       redeem_special_voucher: { Args: { _code: string }; Returns: Json }
       redeem_voucher: { Args: { _code: string }; Returns: number }
       spend_credits: {

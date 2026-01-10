@@ -16,6 +16,7 @@ import Messages from "./pages/Messages";
 import ApiHome from "./pages/ApiHome";
 import ApiDocs from "./pages/ApiDocs";
 import PublicProfile from "./pages/PublicProfile";
+import Invite from "./pages/Invite";
 import NotFound from "./pages/NotFound";
 import { Snake } from "./components/games/Snake";
 import { TicTacToe } from "./components/games/TicTacToe";
@@ -68,6 +69,7 @@ const App = () => (
             <Route path="/api" element={<ApiHome />} />
             <Route path="/api/docs" element={<ApiDocs />} />
             <Route path="/profiles/:userId" element={<PublicProfile />} />
+            <Route path="/invite/:code" element={<Invite />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
