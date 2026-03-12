@@ -92,7 +92,8 @@ Deno.serve(async (req) => {
           rank: rankPosition,
           role: roleData?.role || 'user',
           avatar: profile.avatar_url,
-          lastCreditsRefill: profile.last_credit_refill
+          lastCreditsRefill: profile.last_credit_refill,
+          dmAddress: profile.address_number
         }
       }
 
