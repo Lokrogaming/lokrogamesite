@@ -12,8 +12,8 @@ export function WhackAMole() {
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [isPlaying, setIsPlaying] = useState(false);
   const [highScore, setHighScore] = useState(0);
-  const moleTimer = useRef<NodeJS.Timeout>();
-  const gameTimer = useRef<NodeJS.Timeout>();
+  const moleTimer = useRef<ReturnType<typeof setTimeout>>();
+  const gameTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const showRandomMole = useCallback(() => {
     const randomHole = Math.floor(Math.random() * GRID_SIZE);

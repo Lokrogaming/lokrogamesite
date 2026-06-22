@@ -31,7 +31,10 @@ const games = {
     { title: "Tic Tac Toe", description: "X vs O. Classic two-player strategy.", icon: <Grid3X3 className="h-10 w-10" />, path: "/tic-tac-toe", color: "magenta" as const, cost: 3 },
   ],
   casino: [
-    { title: "Pick-A-Card", description: "5 cards are safe, the other 45 not", icon: <Coins className="h-10 w-10" />, path: "/pickacard", color: "orange" as const, cost: 5 },
+    { title: "Pick-A-Card", description: "5 cards are safe, the other 45 not. 2 lives, bet to win 2x.", icon: <Coins className="h-10 w-10" />, path: "/pickacard", color: "orange" as const, cost: 5 },
+    { title: "Roulette", description: "Bet red/black/odd/even. 1.5x per winning field.", icon: <Coins className="h-10 w-10" />, path: "/roulette", color: "magenta" as const, cost: 5 },
+    { title: "Slots", description: "Spin to win! 777 pays 10x, triple coin/diamond 2x.", icon: <Coins className="h-10 w-10" />, path: "/slots", color: "cyan" as const, cost: 5 },
+    { title: "Coinflip", description: "Heads or tails — double or nothing.", icon: <Coins className="h-10 w-10" />, path: "/coinflip", color: "green" as const, cost: 5 },
   ],
     };
 
@@ -199,6 +202,19 @@ const Index = () => {
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {games.card.map((game) => (
+              <GameCard key={game.path} {...game} />
+            ))}
+          </div>
+        </section>
+
+        {/* Casino */}
+        <section className="mb-12">
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+            <Coins className="h-6 w-6 text-neon-orange" />
+            Casino
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {games.casino.map((game) => (
               <GameCard key={game.path} {...game} />
             ))}
           </div>
