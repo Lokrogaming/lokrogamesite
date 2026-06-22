@@ -207,6 +207,19 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Casino */}
+        <section className="mb-12">
+          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
+            <Coins className="h-6 w-6 text-neon-orange" />
+            Casino
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {games.casino.map((game) => (
+              <GameCard key={game.path} {...game} />
+            ))}
+          </div>
+        </section>
+
         {/* Ranklist */}
         <section className="mb-12">
           <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
