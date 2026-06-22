@@ -144,7 +144,7 @@ const Index = () => {
           )}
         </div>
       </header>
-      <div className="flex flex-col p-6 my-4 text-md font-bold text-white border border-emerald-600 bg-emerald-800 rounded-lg">
+      <div className="flex flex-col p-6 m-4 text-md font-bold text-white border border-emerald-600 bg-emerald-800 rounded-lg">
       <div>
       - New game!
         We introduce more games as we continue approaching the official release of LokroGames!
