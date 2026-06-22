@@ -32,6 +32,10 @@ import { Tetris } from "./components/games/Tetris";
 import { Blockblast } from "./components/games/Blockblast";
 import { SpaceInvaders } from "./components/games/SpaceInvaders";
 import { Solitaire } from "./components/games/Solitaire";
+import { PickACard } from "./components/games/PickACard";
+import { Roulette } from "./components/games/Roulette";
+import { Slots } from "./components/games/Slots";
+import { Coinflip } from "./components/games/Coinflip";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +68,10 @@ const App = () => (
             <Route path="/blockblast" element={<Blockblast />} />
             <Route path="/space-invaders" element={<SpaceInvaders />} />
             <Route path="/solitaire" element={<Solitaire />} />
+            <Route path="/pickacard" element={<PickACard />} />
+            <Route path="/roulette" element={<Roulette />} />
+            <Route path="/slots" element={<Slots />} />
+            <Route path="/coinflip" element={<Coinflip />} />
             <Route path="/staff" element={<StaffPanel />} />
             <Route path="/owner" element={<OwnerPanel />} />
             <Route path="/api" element={<ApiHome />} />

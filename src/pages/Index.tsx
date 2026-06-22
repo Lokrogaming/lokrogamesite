@@ -31,7 +31,10 @@ const games = {
     { title: "Tic Tac Toe", description: "X vs O. Classic two-player strategy.", icon: <Grid3X3 className="h-10 w-10" />, path: "/tic-tac-toe", color: "magenta" as const, cost: 3 },
   ],
   casino: [
-    { title: "Pick-A-Card", description: "5 cards are safe, the other 45 not", icon: <Coins className="h-10 w-10" />, path: "/pickacard", color: "orange" as const, cost: 5 },
+    { title: "Pick-A-Card", description: "5 cards are safe, the other 45 not. 2 lives, bet to win 2x.", icon: <Coins className="h-10 w-10" />, path: "/pickacard", color: "orange" as const, cost: 5 },
+    { title: "Roulette", description: "Bet red/black/odd/even. 1.5x per winning field.", icon: <Coins className="h-10 w-10" />, path: "/roulette", color: "magenta" as const, cost: 5 },
+    { title: "Slots", description: "Spin to win! 777 pays 10x, triple coin/diamond 2x.", icon: <Coins className="h-10 w-10" />, path: "/slots", color: "cyan" as const, cost: 5 },
+    { title: "Coinflip", description: "Heads or tails — double or nothing.", icon: <Coins className="h-10 w-10" />, path: "/coinflip", color: "green" as const, cost: 5 },
   ],
     };
 
