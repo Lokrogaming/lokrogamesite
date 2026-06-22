@@ -144,15 +144,15 @@ const Index = () => {
           )}
         </div>
       </header>
-      <div className="flex flex-col p-6 my-4 text-md font-bold text-white border border-emerald-500 bg-emerald-300 rounded-lg">
+      <div className="flex flex-col p-6 my-4 text-md font-bold text-white border border-emerald-600 bg-emerald-800 rounded-lg">
       <div>
       - New game!
         We introduce more games as we continue approaching the official release of LokroGames!
-        To make <p className="text-amber-500">Credits</p> more valuable, we'll add games like Pick-A-Card, Roulette, Slots, Coinflip, Blackjack and more!
+        To make <p className="text-amber-500 inline">Credits</p> more valuable, we'll add games like Pick-A-Card, Roulette, Slots, Coinflip, Blackjack and more!
 
       
       </div>
-      <div className="bg-red-300 border border-red-500 font-bold text-xl">
+      <div className="inline bg-red-300 border border-red-500 font-bold text-xl rounded-md">
       For legal purposes, it is <p className="text-red-600">strictly prohibited</p> to
       <p className="text-red-600">Sell accounts</p>
       <p className="text-red-600">Buy accounts</p>
