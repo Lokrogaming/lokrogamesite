@@ -152,12 +152,12 @@ const Index = () => {
 
       
       </div>
-      <div className="inline bg-red-300 border border-red-500 font-bold text-xl rounded-md">
-      For legal purposes, it is <p className="text-red-600">strictly prohibited</p> to
+      <div className="inline bg-red-800 border border-red-600 font-bold text-xl rounded-md">
+      <div className="inline">For legal purposes, it is <p className="text-red-600">strictly prohibited</p> to</div>
       <p className="text-red-600">Sell accounts</p>
       <p className="text-red-600">Buy accounts</p>
       <p className="text-red-600">Buy currency (credits)</p>
-      <p className="text-red-600">Sell currency</p> and
+     <div className="inline"><p className="text-red-600">Sell currency</p> and</div>
       <p className="text-red-600">Cheat with botting, hacking etc.</p>
       </div>
       </div>
