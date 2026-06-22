@@ -144,7 +144,23 @@ const Index = () => {
           )}
         </div>
       </header>
+      <div className="flex flex-col h-20 p-6 my-4 text-lg font-bold text-white border border-emerald-500 bg-emerald-300">
+      <div>
+      - New game!
+        We introduce more games as we continue approaching the official release of LokroGames!
+        To make <p className="text-amber-500">Credits</p> more valuable, we'll add games like Pick-A-Card, Roulette, Slots, Coinflip, Blackjack and more!
 
+      
+      </div>
+      <div className="bg-red-300 border border-red-500 font-bold text-xl">
+      For legal purposes, it is <p className="text-red-600">strictly prohibited</p> to
+      <p className="text-red-600">Sell accounts</p>
+      <p className="text-red-600">Buy accounts</p>
+      <p className="text-red-600">Buy currency (credits)</p>
+      <p className="text-red-600">Sell currency</p> and
+      <p className="text-red-600">Cheat with botting, hacking etc.</p>
+      </div>
+      </div>
       <main className="container py-8">
         {/* Arcade Games */}
         <section className="mb-12">
