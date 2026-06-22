@@ -35,6 +35,7 @@ const games = {
     { title: "Roulette", description: "Bet red/black/odd/even. 1.5x per winning field.", icon: <Coins className="h-10 w-10" />, path: "/roulette", color: "magenta" as const, cost: 5 },
     { title: "Slots", description: "Spin to win! 777 pays 10x, triple coin/diamond 2x.", icon: <Coins className="h-10 w-10" />, path: "/slots", color: "cyan" as const, cost: 5 },
     { title: "Coinflip", description: "Heads or tails — double or nothing.", icon: <Coins className="h-10 w-10" />, path: "/coinflip", color: "green" as const, cost: 5 },
+    { title: "Lottery 6/49", description: "Pick 6 numbers. Sunday 12:00 UTC draw — winner takes the pot!", icon: <Trophy className="h-10 w-10" />, path: "/lottery", color: "purple" as const, cost: 100 },
   ],
     };
 

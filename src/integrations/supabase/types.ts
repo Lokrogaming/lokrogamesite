@@ -558,6 +558,77 @@ export type Database = {
           },
         ]
       }
+      lottery_draws: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          draw_date: string
+          id: string
+          pot: number
+          prize_per_winner: number | null
+          status: string
+          winner_user_ids: string[] | null
+          winning_numbers: number[] | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          draw_date: string
+          id?: string
+          pot?: number
+          prize_per_winner?: number | null
+          status?: string
+          winner_user_ids?: string[] | null
+          winning_numbers?: number[] | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          draw_date?: string
+          id?: string
+          pot?: number
+          prize_per_winner?: number | null
+          status?: string
+          winner_user_ids?: string[] | null
+          winning_numbers?: number[] | null
+        }
+        Relationships: []
+      }
+      lottery_tickets: {
+        Row: {
+          created_at: string
+          draw_id: string
+          id: string
+          matches: number | null
+          numbers: number[]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          draw_id: string
+          id?: string
+          matches?: number | null
+          numbers: number[]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          draw_id?: string
+          id?: string
+          matches?: number | null
+          numbers?: number[]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lottery_tickets_draw_id_fkey"
+            columns: ["draw_id"]
+            isOneToOne: false
+            referencedRelation: "lottery_draws"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_requests: {
         Row: {
           content: string
@@ -1125,6 +1196,7 @@ export type Database = {
         Args: { _item_type_id: string; _quantity?: number; _user_id: string }
         Returns: boolean
       }
+      buy_lottery_ticket: { Args: { _numbers: number[] }; Returns: string }
       claim_birthday_reward: { Args: never; Returns: boolean }
       cleanup_old_voucher_attempts: { Args: never; Returns: undefined }
       create_gift_code: {
@@ -1137,6 +1209,7 @@ export type Database = {
         Args: { _amount: number; _reason?: string }
         Returns: boolean
       }
+      ensure_pending_lottery_draw: { Args: never; Returns: string }
       generate_address_number: { Args: never; Returns: string }
       generate_invite_code: { Args: never; Returns: string }
       has_message_access: {
@@ -1152,6 +1225,7 @@ export type Database = {
       }
       is_owner: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      next_lottery_date: { Args: never; Returns: string }
       owner_set_credits: {
         Args: { _new_credits: number; _target_user_id: string }
         Returns: boolean
@@ -1160,6 +1234,7 @@ export type Database = {
       redeem_invite_code: { Args: { _code: string }; Returns: boolean }
       redeem_special_voucher: { Args: { _code: string }; Returns: Json }
       redeem_voucher: { Args: { _code: string }; Returns: number }
+      run_lottery_draw: { Args: never; Returns: Json }
       spend_credits: {
         Args: { _amount: number; _reason?: string }
         Returns: boolean
