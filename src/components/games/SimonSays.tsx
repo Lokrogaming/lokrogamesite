@@ -34,7 +34,7 @@ export function SimonSays() {
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const playSequence = useCallback(async (seq: Color[]) => {
     setIsShowingSequence(true);
