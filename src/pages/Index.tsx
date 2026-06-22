@@ -30,7 +30,10 @@ const games = {
     { title: "Solitaire", description: "Classic card game of patience.", icon: <Spade className="h-10 w-10" />, path: "/solitaire", color: "orange" as const, cost: 5 },
     { title: "Tic Tac Toe", description: "X vs O. Classic two-player strategy.", icon: <Grid3X3 className="h-10 w-10" />, path: "/tic-tac-toe", color: "magenta" as const, cost: 3 },
   ],
-};
+  casino: [
+    { title: "Pick-A-Card", description: "5 cards are safe, the other 45 not", icon: <Coins className="h-10 w-10" />, path: "/pickacard", color: "orange" as const, cost: 5 },
+  ],
+    };
 
 const Index = () => {
   const { user, profile, signOut, isLoading, isStaff, isOwner } = useAuth();
