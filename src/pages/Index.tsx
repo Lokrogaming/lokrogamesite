@@ -46,7 +46,7 @@ const totalGames =
 
 const Section = ({
   title, icon, accent, items,
-}: { title: string; icon: React.ReactNode; accent: string; items: typeof games.arcade }) => (
+}: { title: string; icon: React.ReactNode; accent: string; items: typeof games.arcade | typeof games.puzzle | typeof games.card | typeof games.casino }) => (
   <section className="mb-14">
     <div className="flex items-center justify-between mb-6">
       <h2 className="font-display text-2xl font-bold flex items-center gap-3">
