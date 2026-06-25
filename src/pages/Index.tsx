@@ -1,13 +1,15 @@
 import { GameCard } from "@/components/GameCard";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
-import { Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird, Blocks, Rocket, Spade, User, LogOut, Coins, Settings, Trophy, Upload, Shield, MessageCircle, Crown, Package } from "lucide-react";
+import {
+  Gamepad2, Grid3X3, Brain, Hash, Bomb, Mouse, Palette, Joystick, Bird,
+  Blocks, Rocket, Spade, Coins, Trophy, MessageCircle, Sparkles, ArrowRight,
+} from "lucide-react";
 import GlobalChat from "@/components/GlobalChat";
 import { Ranklist } from "@/components/Ranklist";
+import { Navbar } from "@/components/Navbar";
+import { CreditLeaderboard } from "@/components/CreditLeaderboard";
 
 const games = {
   arcade: [
@@ -37,213 +39,159 @@ const games = {
     { title: "Coinflip", description: "Heads or tails — double or nothing.", icon: <Coins className="h-10 w-10" />, path: "/coinflip", color: "green" as const, cost: 5 },
     { title: "Lottery 6/49", description: "Pick 6 numbers. Sunday 12:00 UTC draw — winner takes the pot!", icon: <Trophy className="h-10 w-10" />, path: "/lottery", color: "purple" as const, cost: 100 },
   ],
-    };
+};
+
+const totalGames =
+  games.arcade.length + games.puzzle.length + games.card.length + games.casino.length;
+
+const Section = ({
+  title, icon, accent, items,
+}: { title: string; icon: React.ReactNode; accent: string; items: typeof games.arcade }) => (
+  <section className="mb-14">
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="font-display text-2xl font-bold flex items-center gap-3">
+        <span className={`p-2 rounded-lg bg-gradient-to-br ${accent}`}>{icon}</span>
+        {title}
+      </h2>
+      <span className="text-sm text-muted-foreground">{items.length} games</span>
+    </div>
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {items.map((g) => <GameCard key={g.path} {...g} />)}
+    </div>
+  </section>
+);
 
 const Index = () => {
-  const { user, profile, signOut, isLoading, isStaff, isOwner } = useAuth();
-  const { totalUnread } = useUnreadMessages();
+  const { user, profile } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 bg-gradient-to-b from-neon-cyan/5 to-transparent" />
-        <div className="absolute inset-0 scanlines opacity-30" />
-        
-        <div className="container relative py-8">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="font-display text-3xl md:text-5xl font-bold tracking-wider">
-              <span className="text-gradient">LOKRO</span>
-              <span className="text-foreground">GAMES</span>
+      <Navbar />
+
+      {/* Hero */}
+      <section className="relative overflow-hidden border-b border-border/60">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--neon-cyan)/0.18),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--neon-magenta)/0.15),transparent_55%)]" />
+        <div className="absolute inset-0 scanlines opacity-20" />
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+          }}
+        />
+
+        <div className="container relative py-16 md:py-24">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/40 bg-primary/10 text-xs font-medium text-primary mb-6 animate-fade-in">
+              <Sparkles className="h-3 w-3" />
+              {totalGames} games · Daily challenges · Casino · Lottery
+            </div>
+
+            <h1 className="font-display text-5xl md:text-7xl font-black tracking-tight mb-6 leading-[1.05]">
+              Play. Win.
+              <br />
+              <span className="text-gradient">Climb the ranks.</span>
             </h1>
-            
-            <div className="flex items-center gap-3">
-              {!isLoading && (
-                user ? (
-                  <>
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border">
-                      <Coins className="h-4 w-4 text-neon-orange" />
-                      <span className="font-display text-sm text-neon-orange">{profile?.credits ?? 0}</span>
-                    </div>
-                    <Link to="/settings">
-                      <Avatar className="h-9 w-9 border border-primary cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
-                        <AvatarImage src={profile?.avatar_url || ''} alt={profile?.username || 'User'} />
-                        <AvatarFallback className="bg-muted">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                        </AvatarFallback>
-                      </Avatar>
-                    </Link>
-                    <Button variant="ghost" size="icon" onClick={signOut}>
-                      <LogOut className="h-4 w-4" />
-                    </Button>
-                  </>
-                ) : (
-                  <Link to="/auth">
-                    <Button variant="outline" size="sm">
-                      <User className="h-4 w-4 mr-2" />
-                      Login
-                    </Button>
-                  </Link>
-                )
+
+            <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
+              {user
+                ? `Welcome back, ${profile?.username || "Player"} — your credits are waiting to be doubled.`
+                : "Free browser games, real credits, real leaderboards. Sign in to start earning."}
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <a href="#games">
+                <Button size="lg" className="bg-gradient-to-r from-neon-cyan to-neon-magenta text-background font-bold hover:opacity-90">
+                  <Gamepad2 className="h-5 w-5 mr-2" />
+                  Browse Games
+                </Button>
+              </a>
+              {!user ? (
+                <Link to="/auth">
+                  <Button size="lg" variant="outline">
+                    Get Started
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/challenges">
+                  <Button size="lg" variant="outline" className="border-neon-orange/50 text-neon-orange hover:bg-neon-orange/10">
+                    <Trophy className="h-5 w-5 mr-2" />
+                    Daily Challenges
+                  </Button>
+                </Link>
               )}
+              <Link to="/rules">
+                <Button size="lg" variant="ghost">Rules</Button>
+              </Link>
+            </div>
+
+            {/* Stats strip */}
+            <div className="grid grid-cols-3 gap-4 mt-12 max-w-xl">
+              {[
+                { label: "Games", value: totalGames },
+                { label: "Your Credits", value: profile?.credits ?? "—" },
+                { label: "Your Rank", value: profile?.username ? "View" : "—" },
+              ].map((s) => (
+                <div key={s.label} className="rounded-xl border border-border/60 bg-card/40 backdrop-blur p-4">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">{s.label}</p>
+                  <p className="font-display text-2xl font-bold text-foreground">{s.value}</p>
+                </div>
+              ))}
             </div>
           </div>
-          
-          <p className="max-w-2xl text-muted-foreground">
-            Play classic browser games. {user ? `Welcome back, ${profile?.username || 'Player'}!` : 'Login to track progress and earn credits.'}
-          </p>
-
-          {/* Quick Actions */}
-          {user && (
-            <div className="flex flex-wrap gap-3 mt-6">
-              <Link to="/challenges">
-                <Button variant="outline" size="sm" className="border-neon-orange/50 text-neon-orange hover:bg-neon-orange/10">
-                  <Trophy className="h-4 w-4 mr-2" />
-                  Daily Challenges
-                </Button>
-              </Link>
-              <Link to="/upload-game">
-                <Button variant="outline" size="sm" className="border-neon-purple/50 text-neon-purple hover:bg-neon-purple/10">
-                  <Upload className="h-4 w-4 mr-2" />
-                  Submit a Game
-                </Button>
-              </Link>
-              <Link to="/inventory">
-                <Button variant="outline" size="sm" className="border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/10">
-                  <Package className="h-4 w-4 mr-2" />
-                  Inventory
-                </Button>
-              </Link>
-              <Link to="/messages">
-                <Button variant="outline" size="sm" className="border-neon-green/50 text-neon-green hover:bg-neon-green/10 relative">
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Messages
-                  {totalUnread > 0 && (
-                    <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                      {totalUnread > 9 ? '9+' : totalUnread}
-                    </Badge>
-                  )}
-                </Button>
-              </Link>
-              <Link to="/settings">
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-              </Link>
-              {isStaff && (
-                <Link to="/staff">
-                  <Button variant="outline" size="sm" className="border-primary/50 text-primary hover:bg-primary/10">
-                    <Shield className="h-4 w-4 mr-2" />
-                    Staff Panel
-                  </Button>
-                </Link>
-              )}
-              {isOwner && (
-                <Link to="/owner">
-                  <Button variant="outline" size="sm" className="border-gold/50 text-gold hover:bg-gold/10">
-                    <Crown className="h-4 w-4 mr-2" />
-                    Owner Panel
-                  </Button>
-                </Link>
-              )}
-            </div>
-          )}
         </div>
-      </header>
-      <div className="flex flex-col p-6 m-4 text-md font-bold text-white border border-emerald-600 bg-emerald-800 rounded-lg">
-      <div>
-      - New game!
-        We introduce more games as we continue approaching the official release of LokroGames!
-        To make <p className="text-amber-500 inline">Credits</p> more valuable, we'll add games like Pick-A-Card, Roulette, Slots, Coinflip, Blackjack and more!
+      </section>
 
-      
-      </div>
-      <div className="inline bg-red-800 border border-red-600 font-bold text-xl rounded-md p-4 mt-4">
-      <div className="inline">For legal purposes, it is <p className="text-red-300">strictly prohibited</p> to</div>
-      <p className="text-red-300">Sell accounts</p>
-      <p className="text-red-300">Buy accounts</p>
-      <p className="text-red-300">Buy currency (credits)</p>
-     <div className="inline"><p className="text-red-300">Sell currency</p> and</div>
-      <p className="text-red-300">Cheat with botting, hacking etc.</p>
-      </div>
-      </div>
-      <main className="container py-8">
-        {/* Arcade Games */}
-        <section className="mb-12">
-          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-            <Gamepad2 className="h-6 w-6 text-neon-cyan" />
-            Arcade Games
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {games.arcade.map((game) => (
-              <GameCard key={game.path} {...game} />
-            ))}
+      <main id="games" className="container py-12">
+        <Section title="Arcade" icon={<Gamepad2 className="h-5 w-5 text-neon-cyan" />} accent="from-neon-cyan/20 to-neon-cyan/0" items={games.arcade} />
+        <Section title="Puzzle" icon={<Brain className="h-5 w-5 text-neon-green" />} accent="from-neon-green/20 to-neon-green/0" items={games.puzzle} />
+        <Section title="Card & Strategy" icon={<Spade className="h-5 w-5 text-neon-orange" />} accent="from-neon-orange/20 to-neon-orange/0" items={games.card} />
+        <Section title="Casino" icon={<Coins className="h-5 w-5 text-neon-magenta" />} accent="from-neon-magenta/20 to-neon-magenta/0" items={games.casino} />
+
+        {/* Leaderboards row */}
+        <section className="grid gap-6 lg:grid-cols-2 mb-14">
+          <div>
+            <h2 className="font-display text-2xl font-bold mb-6 flex items-center gap-3">
+              <span className="p-2 rounded-lg bg-gradient-to-br from-neon-orange/20 to-transparent">
+                <Coins className="h-5 w-5 text-neon-orange" />
+              </span>
+              Credit Leaderboard
+            </h2>
+            <CreditLeaderboard />
           </div>
-        </section>
-
-        {/* Puzzle Games */}
-        <section className="mb-12">
-          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-            <Brain className="h-6 w-6 text-neon-green" />
-            Puzzle Games
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {games.puzzle.map((game) => (
-              <GameCard key={game.path} {...game} />
-            ))}
+          <div>
+            <h2 className="font-display text-2xl font-bold mb-6 flex items-center gap-3">
+              <span className="p-2 rounded-lg bg-gradient-to-br from-neon-purple/20 to-transparent">
+                <Trophy className="h-5 w-5 text-neon-purple" />
+              </span>
+              XP Ranklist
+            </h2>
+            <Ranklist />
           </div>
-        </section>
-
-        {/* Card & Strategy */}
-        <section className="mb-12">
-          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-            <Spade className="h-6 w-6 text-neon-orange" />
-            Card & Strategy
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {games.card.map((game) => (
-              <GameCard key={game.path} {...game} />
-            ))}
-          </div>
-        </section>
-
-        {/* Casino */}
-        <section className="mb-12">
-          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-            <Coins className="h-6 w-6 text-neon-orange" />
-            Casino
-          </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {games.casino.map((game) => (
-              <GameCard key={game.path} {...game} />
-            ))}
-          </div>
-        </section>
-
-        {/* Ranklist */}
-        <section className="mb-12">
-          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-            <Trophy className="h-6 w-6 text-neon-orange" />
-            XP Ranklist
-          </h2>
-          <Ranklist />
         </section>
 
         {/* Global Chat */}
         <section className="mb-12">
-          <h2 className="font-display text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
-            <MessageCircle className="h-6 w-6 text-neon-purple" />
+          <h2 className="font-display text-2xl font-bold mb-6 flex items-center gap-3">
+            <span className="p-2 rounded-lg bg-gradient-to-br from-neon-cyan/20 to-transparent">
+              <MessageCircle className="h-5 w-5 text-neon-cyan" />
+            </span>
             Global Chat
           </h2>
           <GlobalChat />
         </section>
       </main>
 
-      <footer className="border-t border-border py-6">
-        <div className="container text-center">
-          <p className="font-body text-sm text-muted-foreground">
-            Built with React • 14 Games Available • Works on Mobile & Desktop
+      <footer className="border-t border-border/60 py-8">
+        <div className="container text-center text-sm text-muted-foreground">
+          <p>Built with React · {totalGames} games · Works on Mobile & Desktop</p>
+          <p className="mt-2">
+            <Link to="/rules" className="hover:text-foreground underline-offset-4 hover:underline">Rules</Link>
+            <span className="mx-2">·</span>
+            <Link to="/api" className="hover:text-foreground underline-offset-4 hover:underline">API</Link>
           </p>
         </div>
       </footer>

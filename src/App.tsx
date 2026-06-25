@@ -18,6 +18,7 @@ import ApiDocs from "./pages/ApiDocs";
 import PublicProfile from "./pages/PublicProfile";
 import Invite from "./pages/Invite";
 import Lottery from "./pages/Lottery";
+import Rules from "./pages/Rules";
 import NotFound from "./pages/NotFound";
 import { Snake } from "./components/games/Snake";
 import { TicTacToe } from "./components/games/TicTacToe";
@@ -74,6 +75,7 @@ const App = () => (
             <Route path="/slots" element={<Slots />} />
             <Route path="/coinflip" element={<Coinflip />} />
             <Route path="/lottery" element={<Lottery />} />
+            <Route path="/rules" element={<Rules />} />
             <Route path="/staff" element={<StaffPanel />} />
             <Route path="/owner" element={<OwnerPanel />} />
             <Route path="/api" element={<ApiHome />} />
